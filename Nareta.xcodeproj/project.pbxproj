@@ -1,0 +1,590 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00F66F1245C687793762E3DE /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA272AED48C330BE1FF7E8F /* AppState.swift */; };
+		03E16B9E6BA62A9791E5873A /* NaretaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7EB44848F26370788ED5E8 /* NaretaApp.swift */; };
+		0CFD5D417D1D9F38D5A6D646 /* IdentitySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BB8ACDCD6E6132F5A1447A /* IdentitySetupView.swift */; };
+		0EBA65EFAB25E84BE408D947 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD55C6857F68AB73CE1F603D /* Controls.swift */; };
+		12E4567B47016CA853F39923 /* RewardPurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074016430FA2323FD46A245D /* RewardPurchaseView.swift */; };
+		1662821E08FCE767ABBDF135 /* RewardRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F295EE32DC92184FA29A4E4 /* RewardRow.swift */; };
+		360B8394720E834C3EB88B68 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488E54E23FC52B6AAA220306 /* Extensions.swift */; };
+		38ABC1001311BDAE44AC05EF /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220BC68819CCCB957A9A261 /* PrimaryButton.swift */; };
+		3BF1866C1A684EA7790B8F63 /* RewardListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8649C798427029B1EBF3E426 /* RewardListView.swift */; };
+		3D95C9B3DD5C6328B6BD02A2 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14517DA11E57B3F0907CC4B0 /* NotificationService.swift */; };
+		4951F9177E57C570FFBE2561 /* RewardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBEE3D9CD9255760DD2B40AA /* RewardDetailView.swift */; };
+		4B468FD9E68B2D2514FFD07E /* GoalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A858F752BCE88977C2474E5E /* GoalListView.swift */; };
+		4D033E126D0043963E099597 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EA527F14EE0FD99428587B /* HistoryView.swift */; };
+		4FB61B552413D5C2149B406D /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453B18CBB48EAC5F292A376E /* WelcomeView.swift */; };
+		607F0802A9B7EA6E7F005834 /* GoalEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C01F95C1B8C4677490E462A /* GoalEditorView.swift */; };
+		60F5C7E9AFEF6264031755BE /* WeeklyReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74F98E8A643FED28DE58159 /* WeeklyReviewView.swift */; };
+		61BAE98B6F93800B336BE20F /* RewardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D0438B55CBA0DA1B2188EB /* RewardService.swift */; };
+		67A1A9EE6F8CF585EB3DCDF3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B2169C7925267DBDEE4035 /* DataService.swift */; };
+		699DAD0C1B5AF861603EF81D /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7499DE60289A454B7357E81B /* GoalDetailView.swift */; };
+		69C4BB15A10C9E976170E70C /* MonthlyRewardPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF49781E502F1D832283FED /* MonthlyRewardPool.swift */; };
+		6C7E79C78B54051F9176DCC3 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A08453EB3FA2D04B972DFFB /* HealthKitService.swift */; };
+		6F8ED9AD615D00C261C57D92 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A04457019F879F3E7427306 /* HomeView.swift */; };
+		6FB861B1A1DC4875EA04B9CD /* Reward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E6DD2CA910C58EA91E6372 /* Reward.swift */; };
+		74B829DB044A5F60F9F6E0DB /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 327E3BA46F79ACB9B126594E /* DemoData.swift */; };
+		751AF1ED7C6F267EA62DF630 /* RewardTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B4CA4F32B629B911BA9E7E /* RewardTransaction.swift */; };
+		7D311ED2CDE701D54075B683 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1035065749592131CA141EF9 /* LocationService.swift */; };
+		7E83AC8068E17C44930EBC5B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F07AE324DC400198F97EBA3 /* Assets.xcassets */; };
+		7EB05BC57A01FEE52738C385 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C84761E1BDFA59BE75514A5 /* Goal.swift */; };
+		895E7DB26B6E6C13D6D65263 /* GoalRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C52F8F968BB5E646300E01 /* GoalRow.swift */; };
+		8EBC94E69C9F0328B119EFB0 /* RewardEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736CB699FDDB27719958932E /* RewardEditorView.swift */; };
+		95EA623CE49D6D59B4FCFE58 /* GoalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FFEAFBF97632F76C8A4581 /* GoalService.swift */; };
+		AAF9E604265534D5CF665AE6 /* ProgressCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7CF15E4315F892F3E3EF1D7 /* ProgressCard.swift */; };
+		B4EBA8364D469CA24A88DC10 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99518BB4861C2C07FE624AF0 /* RootView.swift */; };
+		BE3F911A175000537C98F301 /* RewardBalanceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6563A09000EF1F324BA4B574 /* RewardBalanceCard.swift */; };
+		BF135B122041F6B8FE3785B7 /* GoalCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2538AF16494E100A5BE34FB /* GoalCompletionView.swift */; };
+		C4C5063C824C1018316DC4B5 /* TodayGoalList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD9749EC25B87503AF751437 /* TodayGoalList.swift */; };
+		D1CE7DA251821BC05D7D9CAD /* NextRewardCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C14341BC4474727191EFFF /* NextRewardCard.swift */; };
+		D5186804E42AD5058196514E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CE9BE3633D3DB0A615A628 /* SettingsView.swift */; };
+		D59475167D343593D5FE382B /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7B52D68965C8D3FB97AF201 /* StatsView.swift */; };
+		D5F9317CE1B8A9E7BDBF7062 /* GoalCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 559DB050DF52C5615A710F1D /* GoalCompletion.swift */; };
+		DDF99FC9FE6AF365D5028910 /* RewardPoolSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9933AF8FF11F55BE876BAD3B /* RewardPoolSetupView.swift */; };
+		EB9E7F9C55BEC1B1B9DF6141 /* OnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F341C2BF3F0F17566350418 /* OnboardingFlow.swift */; };
+		F2C1F9B3D02B27A2540008CB /* MoneyText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19B338235BDDA3A64D5CD5B /* MoneyText.swift */; };
+		FA116FBDE92C5879F61C1C62 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA995EBC7140F5C0812A4EA /* Theme.swift */; };
+		FCA49003B76523213003C7A7 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AAD31EB269F60D2FBA82CD /* Identity.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		03CE9BE3633D3DB0A615A628 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		074016430FA2323FD46A245D /* RewardPurchaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardPurchaseView.swift; sourceTree = "<group>"; };
+		0BF49781E502F1D832283FED /* MonthlyRewardPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyRewardPool.swift; sourceTree = "<group>"; };
+		1035065749592131CA141EF9 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		14517DA11E57B3F0907CC4B0 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		2220BC68819CCCB957A9A261 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
+		22D0438B55CBA0DA1B2188EB /* RewardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardService.swift; sourceTree = "<group>"; };
+		27BB8ACDCD6E6132F5A1447A /* IdentitySetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentitySetupView.swift; sourceTree = "<group>"; };
+		2E0C9DD3C8D8DE229322998C /* Nareta.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Nareta.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		327E3BA46F79ACB9B126594E /* DemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoData.swift; sourceTree = "<group>"; };
+		3B7EB44848F26370788ED5E8 /* NaretaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaretaApp.swift; sourceTree = "<group>"; };
+		3EA272AED48C330BE1FF7E8F /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		3EA995EBC7140F5C0812A4EA /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		453B18CBB48EAC5F292A376E /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		45C14341BC4474727191EFFF /* NextRewardCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextRewardCard.swift; sourceTree = "<group>"; };
+		488E54E23FC52B6AAA220306 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		4F07AE324DC400198F97EBA3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		559DB050DF52C5615A710F1D /* GoalCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCompletion.swift; sourceTree = "<group>"; };
+		6563A09000EF1F324BA4B574 /* RewardBalanceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardBalanceCard.swift; sourceTree = "<group>"; };
+		6A04457019F879F3E7427306 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		6C01F95C1B8C4677490E462A /* GoalEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalEditorView.swift; sourceTree = "<group>"; };
+		736CB699FDDB27719958932E /* RewardEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardEditorView.swift; sourceTree = "<group>"; };
+		7499DE60289A454B7357E81B /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
+		7F341C2BF3F0F17566350418 /* OnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlow.swift; sourceTree = "<group>"; };
+		83FFEAFBF97632F76C8A4581 /* GoalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalService.swift; sourceTree = "<group>"; };
+		8649C798427029B1EBF3E426 /* RewardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardListView.swift; sourceTree = "<group>"; };
+		86C52F8F968BB5E646300E01 /* GoalRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalRow.swift; sourceTree = "<group>"; };
+		8F295EE32DC92184FA29A4E4 /* RewardRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardRow.swift; sourceTree = "<group>"; };
+		92E6DD2CA910C58EA91E6372 /* Reward.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reward.swift; sourceTree = "<group>"; };
+		9933AF8FF11F55BE876BAD3B /* RewardPoolSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardPoolSetupView.swift; sourceTree = "<group>"; };
+		99518BB4861C2C07FE624AF0 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		9A08453EB3FA2D04B972DFFB /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		9C84761E1BDFA59BE75514A5 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
+		A858F752BCE88977C2474E5E /* GoalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalListView.swift; sourceTree = "<group>"; };
+		AD9749EC25B87503AF751437 /* TodayGoalList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayGoalList.swift; sourceTree = "<group>"; };
+		B19B338235BDDA3A64D5CD5B /* MoneyText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyText.swift; sourceTree = "<group>"; };
+		B1AAD31EB269F60D2FBA82CD /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
+		B5EA527F14EE0FD99428587B /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		B8B4CA4F32B629B911BA9E7E /* RewardTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardTransaction.swift; sourceTree = "<group>"; };
+		B9B2169C7925267DBDEE4035 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		C2538AF16494E100A5BE34FB /* GoalCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCompletionView.swift; sourceTree = "<group>"; };
+		C74F98E8A643FED28DE58159 /* WeeklyReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReviewView.swift; sourceTree = "<group>"; };
+		C7CF15E4315F892F3E3EF1D7 /* ProgressCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCard.swift; sourceTree = "<group>"; };
+		CBEE3D9CD9255760DD2B40AA /* RewardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDetailView.swift; sourceTree = "<group>"; };
+		DD55C6857F68AB73CE1F603D /* Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controls.swift; sourceTree = "<group>"; };
+		E7B52D68965C8D3FB97AF201 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		118EB4E5A6ACB438E3E9FBDB /* Goals */ = {
+			isa = PBXGroup;
+			children = (
+				C2538AF16494E100A5BE34FB /* GoalCompletionView.swift */,
+				7499DE60289A454B7357E81B /* GoalDetailView.swift */,
+				6C01F95C1B8C4677490E462A /* GoalEditorView.swift */,
+				A858F752BCE88977C2474E5E /* GoalListView.swift */,
+			);
+			path = Goals;
+			sourceTree = "<group>";
+		};
+		18074A0D29D7EDA2A50D01A3 /* Nareta */ = {
+			isa = PBXGroup;
+			children = (
+				218E8A2987A2F951C515C4BE /* App */,
+				1D4F9C42EFB8345476721022 /* Components */,
+				ECEBB6E0F6D461A7993EF395 /* Models */,
+				CB684F8484C48CD9B95B6F2B /* Resources */,
+				FF777D69322510F2AA2B98CC /* Services */,
+				F5199603F767E8612F81B309 /* Utilities */,
+				96C368630E7B03CBDCD9775A /* Views */,
+			);
+			path = Nareta;
+			sourceTree = "<group>";
+		};
+		1D4F9C42EFB8345476721022 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DD55C6857F68AB73CE1F603D /* Controls.swift */,
+				86C52F8F968BB5E646300E01 /* GoalRow.swift */,
+				B19B338235BDDA3A64D5CD5B /* MoneyText.swift */,
+				2220BC68819CCCB957A9A261 /* PrimaryButton.swift */,
+				C7CF15E4315F892F3E3EF1D7 /* ProgressCard.swift */,
+				8F295EE32DC92184FA29A4E4 /* RewardRow.swift */,
+				3EA995EBC7140F5C0812A4EA /* Theme.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		218E8A2987A2F951C515C4BE /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3EA272AED48C330BE1FF7E8F /* AppState.swift */,
+				3B7EB44848F26370788ED5E8 /* NaretaApp.swift */,
+				99518BB4861C2C07FE624AF0 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		3DEDDB1B2E8B3A15B9C403A2 /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				B5EA527F14EE0FD99428587B /* HistoryView.swift */,
+				E7B52D68965C8D3FB97AF201 /* StatsView.swift */,
+				C74F98E8A643FED28DE58159 /* WeeklyReviewView.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
+		44BE671CC999915B0D364298 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				6A04457019F879F3E7427306 /* HomeView.swift */,
+				45C14341BC4474727191EFFF /* NextRewardCard.swift */,
+				6563A09000EF1F324BA4B574 /* RewardBalanceCard.swift */,
+				AD9749EC25B87503AF751437 /* TodayGoalList.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		543FA31E23DB4080A9E8EDAF /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				27BB8ACDCD6E6132F5A1447A /* IdentitySetupView.swift */,
+				7F341C2BF3F0F17566350418 /* OnboardingFlow.swift */,
+				9933AF8FF11F55BE876BAD3B /* RewardPoolSetupView.swift */,
+				453B18CBB48EAC5F292A376E /* WelcomeView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		5F78649EA35FEF47A07299F5 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				03CE9BE3633D3DB0A615A628 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		7DC35D13E72F4FC1DE02DDF2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2E0C9DD3C8D8DE229322998C /* Nareta.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8815315C90055E962AFE8852 /* Rewards */ = {
+			isa = PBXGroup;
+			children = (
+				CBEE3D9CD9255760DD2B40AA /* RewardDetailView.swift */,
+				736CB699FDDB27719958932E /* RewardEditorView.swift */,
+				8649C798427029B1EBF3E426 /* RewardListView.swift */,
+				074016430FA2323FD46A245D /* RewardPurchaseView.swift */,
+			);
+			path = Rewards;
+			sourceTree = "<group>";
+		};
+		8E04D2DC4372378D3C0EC95F = {
+			isa = PBXGroup;
+			children = (
+				18074A0D29D7EDA2A50D01A3 /* Nareta */,
+				7DC35D13E72F4FC1DE02DDF2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		96C368630E7B03CBDCD9775A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				118EB4E5A6ACB438E3E9FBDB /* Goals */,
+				44BE671CC999915B0D364298 /* Home */,
+				543FA31E23DB4080A9E8EDAF /* Onboarding */,
+				8815315C90055E962AFE8852 /* Rewards */,
+				5F78649EA35FEF47A07299F5 /* Settings */,
+				3DEDDB1B2E8B3A15B9C403A2 /* Stats */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		CB684F8484C48CD9B95B6F2B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4F07AE324DC400198F97EBA3 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		ECEBB6E0F6D461A7993EF395 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9C84761E1BDFA59BE75514A5 /* Goal.swift */,
+				559DB050DF52C5615A710F1D /* GoalCompletion.swift */,
+				B1AAD31EB269F60D2FBA82CD /* Identity.swift */,
+				0BF49781E502F1D832283FED /* MonthlyRewardPool.swift */,
+				92E6DD2CA910C58EA91E6372 /* Reward.swift */,
+				B8B4CA4F32B629B911BA9E7E /* RewardTransaction.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F5199603F767E8612F81B309 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				327E3BA46F79ACB9B126594E /* DemoData.swift */,
+				488E54E23FC52B6AAA220306 /* Extensions.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		FF777D69322510F2AA2B98CC /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B9B2169C7925267DBDEE4035 /* DataService.swift */,
+				83FFEAFBF97632F76C8A4581 /* GoalService.swift */,
+				9A08453EB3FA2D04B972DFFB /* HealthKitService.swift */,
+				1035065749592131CA141EF9 /* LocationService.swift */,
+				14517DA11E57B3F0907CC4B0 /* NotificationService.swift */,
+				22D0438B55CBA0DA1B2188EB /* RewardService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		61630CA032054E1236D056F2 /* Nareta */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DD00FE4A145259C9BE3E3290 /* Build configuration list for PBXNativeTarget "Nareta" */;
+			buildPhases = (
+				9EAE35CCFDC53D9CD77F23A4 /* Sources */,
+				4006B956B62910D90B4A0B75 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Nareta;
+			packageProductDependencies = (
+			);
+			productName = Nareta;
+			productReference = 2E0C9DD3C8D8DE229322998C /* Nareta.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D3745088DE13E49AF4CB2188 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					61630CA032054E1236D056F2 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 191E1F5E7FB82809388AEA42 /* Build configuration list for PBXProject "Nareta" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 8E04D2DC4372378D3C0EC95F;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7DC35D13E72F4FC1DE02DDF2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				61630CA032054E1236D056F2 /* Nareta */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4006B956B62910D90B4A0B75 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7E83AC8068E17C44930EBC5B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9EAE35CCFDC53D9CD77F23A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00F66F1245C687793762E3DE /* AppState.swift in Sources */,
+				0EBA65EFAB25E84BE408D947 /* Controls.swift in Sources */,
+				67A1A9EE6F8CF585EB3DCDF3 /* DataService.swift in Sources */,
+				74B829DB044A5F60F9F6E0DB /* DemoData.swift in Sources */,
+				360B8394720E834C3EB88B68 /* Extensions.swift in Sources */,
+				7EB05BC57A01FEE52738C385 /* Goal.swift in Sources */,
+				D5F9317CE1B8A9E7BDBF7062 /* GoalCompletion.swift in Sources */,
+				BF135B122041F6B8FE3785B7 /* GoalCompletionView.swift in Sources */,
+				699DAD0C1B5AF861603EF81D /* GoalDetailView.swift in Sources */,
+				607F0802A9B7EA6E7F005834 /* GoalEditorView.swift in Sources */,
+				4B468FD9E68B2D2514FFD07E /* GoalListView.swift in Sources */,
+				895E7DB26B6E6C13D6D65263 /* GoalRow.swift in Sources */,
+				95EA623CE49D6D59B4FCFE58 /* GoalService.swift in Sources */,
+				6C7E79C78B54051F9176DCC3 /* HealthKitService.swift in Sources */,
+				4D033E126D0043963E099597 /* HistoryView.swift in Sources */,
+				6F8ED9AD615D00C261C57D92 /* HomeView.swift in Sources */,
+				FCA49003B76523213003C7A7 /* Identity.swift in Sources */,
+				0CFD5D417D1D9F38D5A6D646 /* IdentitySetupView.swift in Sources */,
+				7D311ED2CDE701D54075B683 /* LocationService.swift in Sources */,
+				F2C1F9B3D02B27A2540008CB /* MoneyText.swift in Sources */,
+				69C4BB15A10C9E976170E70C /* MonthlyRewardPool.swift in Sources */,
+				03E16B9E6BA62A9791E5873A /* NaretaApp.swift in Sources */,
+				D1CE7DA251821BC05D7D9CAD /* NextRewardCard.swift in Sources */,
+				3D95C9B3DD5C6328B6BD02A2 /* NotificationService.swift in Sources */,
+				EB9E7F9C55BEC1B1B9DF6141 /* OnboardingFlow.swift in Sources */,
+				38ABC1001311BDAE44AC05EF /* PrimaryButton.swift in Sources */,
+				AAF9E604265534D5CF665AE6 /* ProgressCard.swift in Sources */,
+				6FB861B1A1DC4875EA04B9CD /* Reward.swift in Sources */,
+				BE3F911A175000537C98F301 /* RewardBalanceCard.swift in Sources */,
+				4951F9177E57C570FFBE2561 /* RewardDetailView.swift in Sources */,
+				8EBC94E69C9F0328B119EFB0 /* RewardEditorView.swift in Sources */,
+				3BF1866C1A684EA7790B8F63 /* RewardListView.swift in Sources */,
+				DDF99FC9FE6AF365D5028910 /* RewardPoolSetupView.swift in Sources */,
+				12E4567B47016CA853F39923 /* RewardPurchaseView.swift in Sources */,
+				1662821E08FCE767ABBDF135 /* RewardRow.swift in Sources */,
+				61BAE98B6F93800B336BE20F /* RewardService.swift in Sources */,
+				751AF1ED7C6F267EA62DF630 /* RewardTransaction.swift in Sources */,
+				B4EBA8364D469CA24A88DC10 /* RootView.swift in Sources */,
+				D5186804E42AD5058196514E /* SettingsView.swift in Sources */,
+				D59475167D343593D5FE382B /* StatsView.swift in Sources */,
+				FA116FBDE92C5879F61C1C62 /* Theme.swift in Sources */,
+				C4C5063C824C1018316DC4B5 /* TodayGoalList.swift in Sources */,
+				60F5C7E9AFEF6264031755BE /* WeeklyReviewView.swift in Sources */,
+				4FB61B552413D5C2149B406D /* WelcomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		32E70F4B8C1645AB1424EEAD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = NARETA;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fragde.nareta;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4B7CD2EBA990D60EF16415A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B55996FF9B98DF8CE75ED210 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C0B6475A2B1FEE3018567DF3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = NARETA;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fragde.nareta;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		191E1F5E7FB82809388AEA42 /* Build configuration list for PBXProject "Nareta" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B55996FF9B98DF8CE75ED210 /* Debug */,
+				4B7CD2EBA990D60EF16415A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DD00FE4A145259C9BE3E3290 /* Build configuration list for PBXNativeTarget "Nareta" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32E70F4B8C1645AB1424EEAD /* Debug */,
+				C0B6475A2B1FEE3018567DF3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D3745088DE13E49AF4CB2188 /* Project object */;
+}
