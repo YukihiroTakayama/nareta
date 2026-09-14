@@ -16,6 +16,7 @@ enum NotificationService {
     static func reschedule(context: ModelContext, now: Date = .now) {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
+        AlarmService.reschedule(context: context)
         guard enabled else { return }
 
         let goals = (try? context.fetch(FetchDescriptor<Goal>())) ?? []
@@ -49,6 +50,23 @@ enum NotificationService {
                 add(center, id: "reward", title: "あと\(remaining.yen)で\(reward.name)を解放", body: "今日の目標を達成して近づこう。",
                     components: Calendar.nareta.dateComponents([.year, .month, .day, .hour, .minute], from: fire), repeats: false)
             }
+        }
+
+        // If-Thenの時刻（通知指定の目標。アラーム指定でもAlarmKitが使えなければ通知で代替）
+        let routines = (try? context.fetch(FetchDescriptor<RoutineAnchor>())) ?? []
+        let alarmsAvailable = AlarmService.authorization == .authorized
+        var planned: [(date: Date, goal: Goal)] = []
+        for goal in goals {
+            let style = goal.alertStyleValue
+            guard style == .notification || (style == .alarm && !alarmsAvailable),
+                  let minutes = TriggerService.minutes(for: goal, routines: routines) else { continue }
+            planned += TriggerService.fireDates(for: goal, minutes: minutes, completions: byGoal[goal.id] ?? [], now: now).map { ($0, goal) }
+        }
+        for (index, item) in planned.sorted(by: { $0.date < $1.date }).prefix(50).enumerated() {
+            let label = TriggerService.label(for: item.goal, routines: routines) ?? ""
+            add(center, id: "trigger-\(index)", title: "\(item.goal.title)の時間です",
+                body: "\(label)になりました。達成すると \(item.goal.rewardAmount.signedYen) 解放",
+                components: Calendar.nareta.dateComponents([.year, .month, .day, .hour, .minute], from: item.date), repeats: false)
         }
 
         // Weekly 日曜 21:00

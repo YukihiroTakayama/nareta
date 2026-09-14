@@ -44,14 +44,16 @@ struct HabitNoticeCard: View {
 
 struct GoalPlanCard: View {
     let goal: Goal
+    var triggerLabel: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("行動プラン", systemImage: "arrow.triangle.branch")
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(Theme.ink)
-            if !goal.cue.isEmpty {
-                row("If-Then", Theme.blue, "\(goal.cue) → \(goal.title)")
+            if let triggerLabel {
+                row("If-Then", Theme.blue, "\(triggerLabel)になったら → \(goal.title)")
+                row("Alert", Theme.goldDeep, goal.alertStyleValue == .none ? "お知らせしない" : "\(goal.alertStyleValue.label)で知らせる")
             }
             if !goal.wishOutcome.isEmpty {
                 row("Outcome", Theme.green, goal.wishOutcome)

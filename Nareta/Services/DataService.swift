@@ -19,6 +19,7 @@ enum DataService {
             identities[name] = identity
         }
 
+        let routines = ensureRoutines(context: context)
         RewardService(context: context).startPool(amount: poolAmount)
 
         guard includeSamples else {
@@ -37,12 +38,16 @@ enum DataService {
             Goal(title: "23:30までに寝る", note: "明日のパフォーマンスのために", rewardAmount: 100, frequency: .daily,
                  identityId: identities["生活を整えたい"]?.id, createdAt: base.addingTimeInterval(3)),
         ]
-        goals[0].cue = "昼休みに外へ出たら"
-        goals[1].cue = "夕食を食べ終えたら"
-        goals[2].cue = "仕事が終わって会社を出たら"
+        let routineByName = Dictionary(routines.map { ($0.name, $0) }, uniquingKeysWith: { a, _ in a })
+        goals[0].routineId = routineByName["昼食"]?.id
+        goals[0].alertStyle = AlertStyle.notification.rawValue
+        goals[1].routineId = routineByName["夕食"]?.id
+        goals[1].triggerOffset = 60
+        goals[2].triggerMinutes = 19 * 60
         goals[2].obstacle = "残業で疲れて帰りたくなる"
         goals[2].obstaclePlan = "ウェアを持って出社し、10分だけでも行く"
-        goals[3].cue = "23:00にアラームが鳴ったら"
+        goals[3].routineId = routineByName["就寝"]?.id
+        goals[3].triggerOffset = -30
         goals.forEach(context.insert)
 
         let rewards: [Reward] = [
@@ -52,6 +57,19 @@ enum DataService {
         ]
         rewards.forEach(context.insert)
         try? context.save()
+    }
+
+    /// ルーティン時刻がまだなければ初期値を入れる
+    @discardableResult
+    static func ensureRoutines(context: ModelContext) -> [RoutineAnchor] {
+        let existing = (try? context.fetch(FetchDescriptor<RoutineAnchor>(sortBy: [SortDescriptor(\.sortOrder)]))) ?? []
+        guard existing.isEmpty else { return existing }
+        let created = RoutineAnchor.presets.enumerated().map { index, preset in
+            RoutineAnchor(name: preset.name, icon: preset.icon, minutes: preset.minutes, sortOrder: index)
+        }
+        created.forEach(context.insert)
+        try? context.save()
+        return created
     }
 
     // MARK: - Reset
@@ -65,6 +83,7 @@ enum DataService {
         try? context.delete(model: MonthlyRewardPool.self)
         try? context.delete(model: AutomaticityCheck.self)
         try? context.delete(model: StreakFreeze.self)
+        try? context.delete(model: RoutineAnchor.self)
         try? context.save()
     }
 
@@ -76,7 +95,7 @@ enum DataService {
             let id: UUID; let title: String; let note: String; let rewardAmount: Int; let frequencyType: String
             let targetCount: Int; let weekdays: [Int]; let durationMinutes: Int; let identityId: UUID?
             let isActive: Bool; let verificationType: String; let createdAt: Date
-            let cue: String; let wishOutcome: String; let obstacle: String; let obstaclePlan: String; let archivedAt: Date?
+            let triggerMinutes: Int; let routineId: UUID?; let triggerOffset: Int; let alertStyle: String; let wishOutcome: String; let obstacle: String; let obstaclePlan: String; let archivedAt: Date?
         }
         struct CompletionDTO: Encodable { let id: UUID; let goalId: UUID; let completedAt: Date; let rewardAmount: Int; let bonusAmount: Int }
         struct CheckDTO: Encodable { let id: UUID; let goalId: UUID; let checkedAt: Date; let scores: [Int] }
@@ -112,7 +131,7 @@ enum DataService {
                 .init(id: $0.id, title: $0.title, note: $0.note, rewardAmount: $0.rewardAmount, frequencyType: $0.frequencyType,
                       targetCount: $0.targetCount, weekdays: $0.weekdays, durationMinutes: $0.durationMinutes, identityId: $0.identityId,
                       isActive: $0.isActive, verificationType: $0.verificationType, createdAt: $0.createdAt,
-                      cue: $0.cue, wishOutcome: $0.wishOutcome, obstacle: $0.obstacle, obstaclePlan: $0.obstaclePlan, archivedAt: $0.archivedAt)
+                      triggerMinutes: $0.triggerMinutes, routineId: $0.routineId, triggerOffset: $0.triggerOffset, alertStyle: $0.alertStyle, wishOutcome: $0.wishOutcome, obstacle: $0.obstacle, obstaclePlan: $0.obstaclePlan, archivedAt: $0.archivedAt)
             },
             goalCompletions: all(GoalCompletion.self).map { .init(id: $0.id, goalId: $0.goalId, completedAt: $0.completedAt, rewardAmount: $0.rewardAmount, bonusAmount: $0.bonusAmount) },
             monthlyRewardPools: all(MonthlyRewardPool.self).map {

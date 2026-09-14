@@ -12,6 +12,7 @@ struct GoalDetailView: View {
     @Query private var identities: [Identity]
     @Query private var allChecks: [AutomaticityCheck]
     @Query private var allFreezes: [StreakFreeze]
+    @Query private var routines: [RoutineAnchor]
 
     @State private var displayedMonth = Date().startOfMonth
     @State private var confirmDelete = false
@@ -81,7 +82,7 @@ struct GoalDetailView: View {
                 }
 
                 if goal.hasPlan {
-                    GoalPlanCard(goal: goal)
+                    GoalPlanCard(goal: goal, triggerLabel: TriggerService.label(for: goal, routines: routines))
                 }
 
                 if HabitService.isGraduatable(goal) || isArchived {

@@ -5,6 +5,7 @@ struct GoalRow: View {
     let completions: [GoalCompletion]
     var identity: Identity?
     var showMeta = false
+    var triggerLabel: String?
     let onComplete: () -> Void
 
     private var completedToday: Bool { GoalService.isCompletedToday(completions) }
@@ -47,15 +48,12 @@ struct GoalRow: View {
                         .foregroundStyle(Theme.ink.opacity(0.8))
                     LinearBar(progress: Double(count) / Double(target), color: periodDone ? Theme.green : Theme.blue, height: 6)
                         .padding(.top, 2)
-                } else if !goal.cue.isEmpty {
+                } else if let triggerLabel {
                     HStack(spacing: 5) {
-                        Text("If")
-                            .font(.system(size: 9, weight: .heavy))
-                            .foregroundStyle(Theme.blue)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Theme.blue.opacity(0.12), in: Capsule())
-                        Text(goal.cue)
+                        Image(systemName: goal.alertStyleValue.icon)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(goal.alertStyleValue == .alarm ? Theme.goldDeep : Theme.blue)
+                        Text(triggerLabel)
                             .font(.system(size: 13))
                             .foregroundStyle(Theme.subtext)
                             .lineLimit(1)

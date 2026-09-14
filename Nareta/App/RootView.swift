@@ -61,6 +61,7 @@ struct RootView: View {
 
     private func checkNewMonth() {
         guard hasOnboarded else { return }
+        DataService.ensureRoutines(context: context)
         let service = RewardService(context: context)
         if service.ensureCurrentPool() {
             newMonthPool = service.currentPool()

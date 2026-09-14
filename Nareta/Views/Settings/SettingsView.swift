@@ -11,7 +11,9 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.haptics) private var haptics = true
 
     @Query private var pools: [MonthlyRewardPool]
+    @Query private var routines: [RoutineAnchor]
     @State private var exportURL: URL?
+    @State private var alarmAuthorization: AlarmAuthorization = .unsupported
     @State private var confirmReset = false
     @State private var editingPool: MonthlyRewardPool?
 
@@ -72,6 +74,19 @@ struct SettingsView: View {
                     Text("朝8:00に今日の目標、21:00に未達の目標、日曜21:00に週のふりかえりをお知らせします。")
                 }
 
+                Section {
+                    NavigationLink {
+                        RoutineManageView()
+                    } label: {
+                        LabeledContent("ルーティン時刻", value: "\(routines.count)件")
+                    }
+                    alarmRow
+                } header: {
+                    Text("If-Then・アラーム")
+                } footer: {
+                    Text("「夕食 19:00」のようにいつもの時刻を登録しておくと、目標のトリガーに使えます。時刻を変えると、紐づく目標のアラームもまとめて変わります。")
+                }
+
                 Section("Data") {
                     NavigationLink("History") { HistoryView() }
                     if let exportURL {
@@ -94,7 +109,10 @@ struct SettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("完了") { dismiss() } }
             }
-            .onAppear { exportURL = DataService.exportJSON(context: context) }
+            .onAppear {
+                exportURL = DataService.exportJSON(context: context)
+                alarmAuthorization = AlarmService.authorization
+            }
             .sheet(item: $editingPool) { PoolAmountEditorView(pool: $0) }
             .confirmationDialog("すべてのデータを削除しますか？", isPresented: $confirmReset, titleVisibility: .visible) {
                 Button("リセットする", role: .destructive) {
@@ -105,6 +123,32 @@ struct SettingsView: View {
                 }
             } message: {
                 Text("目標・ごほうび・履歴がすべて削除され、初回設定からやり直します。この操作は取り消せません。")
+            }
+        }
+    }
+}
+
+extension SettingsView {
+    @ViewBuilder
+    var alarmRow: some View {
+        switch alarmAuthorization {
+        case .unsupported:
+            LabeledContent("アラーム", value: "iOS 26以降で利用可")
+        case .authorized:
+            LabeledContent("アラーム", value: "許可済み")
+        case .denied:
+            Button("アラームが許可されていません（設定を開く）") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+        case .notDetermined:
+            Button("アラームを許可する") {
+                Task {
+                    await AlarmService.requestAuthorization()
+                    alarmAuthorization = AlarmService.authorization
+                    NotificationService.reschedule(context: context)
+                }
             }
         }
     }

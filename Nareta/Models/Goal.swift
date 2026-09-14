@@ -16,6 +16,27 @@ enum FrequencyType: String, CaseIterable, Identifiable {
     }
 }
 
+enum AlertStyle: String, CaseIterable, Identifiable {
+    case alarm, notification, none
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .alarm: "アラーム"
+        case .notification: "通知"
+        case .none: "なし"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .alarm: "alarm.fill"
+        case .notification: "bell.fill"
+        case .none: "clock"
+        }
+    }
+}
+
 enum VerificationType: String, CaseIterable, Identifiable {
     case manual, healthKit, location, timer
     var id: String { rawValue }
@@ -66,8 +87,13 @@ final class Goal {
     var isActive: Bool = true
     var verificationType: String = VerificationType.manual.rawValue
     var createdAt: Date = Date()
-    /// If-Then計画の「If」（いつ・どこで）
-    var cue: String = ""
+    /// If-Then計画の「If」: 時刻（0時からの分、-1 = なし）
+    var triggerMinutes: Int = -1
+    /// If-Then計画の「If」: ルーティン（設定時は triggerMinutes より優先）
+    var routineId: UUID?
+    /// ルーティンからのずれ（分）
+    var triggerOffset: Int = 0
+    var alertStyle: String = AlertStyle.alarm.rawValue
     /// WOOP: Outcome / Obstacle / Plan
     var wishOutcome: String = ""
     var obstacle: String = ""
@@ -102,7 +128,9 @@ final class Goal {
 
     /// 一時停止でも卒業済みでもない
     var isLive: Bool { isActive && archivedAt == nil }
-    var hasPlan: Bool { !cue.isEmpty || !wishOutcome.isEmpty || !obstacle.isEmpty || !obstaclePlan.isEmpty }
+    var hasTrigger: Bool { routineId != nil || triggerMinutes >= 0 }
+    var hasPlan: Bool { hasTrigger || !wishOutcome.isEmpty || !obstacle.isEmpty || !obstaclePlan.isEmpty }
+    var alertStyleValue: AlertStyle { AlertStyle(rawValue: alertStyle) ?? .alarm }
 
     var frequency: FrequencyType { FrequencyType(rawValue: frequencyType) ?? .daily }
     var verification: VerificationType { VerificationType(rawValue: verificationType) ?? .manual }

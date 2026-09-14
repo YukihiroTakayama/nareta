@@ -11,15 +11,6 @@ struct NaretaApp: App {
                 .environment(appState)
                 .preferredColorScheme(.light)
         }
-        .modelContainer(for: [
-            Identity.self,
-            Goal.self,
-            GoalCompletion.self,
-            MonthlyRewardPool.self,
-            Reward.self,
-            RewardTransaction.self,
-            AutomaticityCheck.self,
-            StreakFreeze.self,
-        ])
+        .modelContainer(AppModel.container)
     }
 }

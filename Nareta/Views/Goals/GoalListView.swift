@@ -13,6 +13,7 @@ struct GoalListView: View {
     @Query(sort: \Goal.createdAt) private var goals: [Goal]
     @Query private var completions: [GoalCompletion]
     @Query(sort: \Identity.createdAt) private var identities: [Identity]
+    @Query private var routines: [RoutineAnchor]
 
     @State private var section: Section = .today
     @State private var showSettings = false
@@ -54,6 +55,7 @@ struct GoalListView: View {
                             completions: goalCompletions,
                             identity: goal.identityId.flatMap { identityMap[$0] },
                             showMeta: true,
+                            triggerLabel: TriggerService.label(for: goal, routines: routines),
                             onComplete: { appState.complete(goal, context: context) }
                         )
                     }

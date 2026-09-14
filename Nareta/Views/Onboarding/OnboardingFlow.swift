@@ -36,6 +36,7 @@ struct OnboardingFlow: View {
         Haptics.success()
         Task {
             await NotificationService.requestAuthorization()
+            await AlarmService.requestAuthorization()
             NotificationService.reschedule(context: context)
         }
         withAnimation(.easeInOut(duration: 0.35)) { hasOnboarded = true }

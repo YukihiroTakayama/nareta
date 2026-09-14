@@ -27,11 +27,12 @@ enum DemoData {
 
         let english = Goal(title: "英語20分", note: "未来の自分に投資しよう", rewardAmount: 200, frequency: .weekly, targetCount: 5,
                            durationMinutes: 20, createdAt: today.adding(days: -20))
-        english.cue = "通勤電車に乗ったら"
+        english.triggerMinutes = 8 * 60
+        english.alertStyle = AlertStyle.notification.rawValue
         context.insert(english)
 
         let water = Goal(title: "水を2L飲む", rewardAmount: 100, frequency: .daily, identityId: healthId, createdAt: today.adding(days: -90))
-        water.cue = "朝、デスクに着いたら"
+        water.triggerMinutes = 9 * 60
         water.archivedAt = today.adding(days: -6).addingTimeInterval(20 * 3600)
         context.insert(water)
 

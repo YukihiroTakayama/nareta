@@ -8,10 +8,15 @@ struct GoalEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @Query(sort: \Identity.createdAt) private var identities: [Identity]
+    @Query(sort: \RoutineAnchor.sortOrder) private var routines: [RoutineAnchor]
 
     @State private var title = ""
     @State private var note = ""
-    @State private var cue = ""
+    @State private var triggerMode: TriggerMode = .time
+    @State private var triggerTime = Calendar.nareta.date(bySettingHour: 20, minute: 0, second: 0, of: Date()) ?? Date()
+    @State private var routineId: UUID?
+    @State private var triggerOffset = 0
+    @State private var alertStyle: AlertStyle = .alarm
     @State private var outcome = ""
     @State private var obstacle = ""
     @State private var obstaclePlan = ""
@@ -31,7 +36,6 @@ struct GoalEditorView: View {
     private static let quickAmounts = [50, 100, 200, 500, 1_000]
     private static let durations = [0, 10, 15, 20, 30, 45, 60, 90, 120]
     private static let titleLimit = 30
-    private static let cueExamples = ["朝起きたら", "昼食を食べ終えたら", "仕事が終わったら", "夕食の後に", "お風呂から出たら", "寝る前に"]
 
     private var isValid: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty
@@ -132,44 +136,142 @@ struct GoalEditorView: View {
     }
 
     private var ifThenSection: some View {
-        EditorSection(title: "If-Then計画", subtitle: "「いつ・どこで」やるかを先に決めておくと、実行率が上がります") {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 10) {
-                    Text("If")
-                        .font(.system(size: 13, weight: .heavy))
-                        .foregroundStyle(.white)
-                        .frame(width: 34, height: 28)
-                        .background(Theme.blue, in: Capsule())
-                    TextField("例: 昼食を食べ終えたら", text: $cue)
-                        .font(.system(size: 16, weight: .semibold))
+        EditorSection(title: "If-Then（いつやる？）", subtitle: "やる時刻を決めておくと、その時間にアラームで知らせます") {
+            VStack(alignment: .leading, spacing: 12) {
+                Picker("トリガー", selection: $triggerMode) {
+                    ForEach(TriggerMode.allCases) { Text($0.label).tag($0) }
                 }
-                .padding(.horizontal, 10)
-                .frame(height: 50)
-                .background(Theme.chip.opacity(0.7), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .pickerStyle(.segmented)
+                .onChange(of: triggerMode) { _, mode in
+                    if mode == .routine && routineId == nil { routineId = routines.first?.id }
+                }
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(Self.cueExamples, id: \.self) { example in
-                            SelectChip(title: example, selected: cue == example, showsCheck: false) { cue = example }
+                switch triggerMode {
+                case .none:
+                    Text("時刻を決めない目標は、Todayに表示されるだけです。")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.subtext)
+                case .time:
+                    HStack(spacing: 10) {
+                        ifBadge
+                        DatePicker("時刻", selection: $triggerTime, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                        Text("になったら").font(.system(size: 15, weight: .semibold)).foregroundStyle(Theme.ink)
+                        Spacer()
+                    }
+                case .routine:
+                    VStack(alignment: .leading, spacing: 10) {
+                        FlowLayout(spacing: 8) {
+                            ForEach(routines) { routine in
+                                SelectChip(
+                                    title: "\(routine.name) \(TriggerService.timeText(routine.minutes))",
+                                    icon: routine.icon,
+                                    selected: routineId == routine.id,
+                                    showsCheck: false
+                                ) { routineId = routine.id }
+                            }
+                        }
+                        HStack(spacing: 8) {
+                            ifBadge
+                            Menu {
+                                Picker("タイミング", selection: $triggerOffset) {
+                                    ForEach(TriggerService.offsets, id: \.self) { Text(TriggerService.offsetText($0)).tag($0) }
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(TriggerService.offsetText(triggerOffset))
+                                    Image(systemName: "chevron.up.chevron.down").font(.system(size: 11))
+                                }
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(Theme.ink)
+                                .padding(.horizontal, 12)
+                                .frame(height: 36)
+                                .background(Theme.chip, in: Capsule())
+                            }
+                            Spacer()
+                            NavigationLink {
+                                RoutineManageView()
+                            } label: {
+                                Label("時刻を編集", systemImage: "slider.horizontal.3")
+                                    .font(.system(size: 13, weight: .semibold))
+                            }
                         }
                     }
                 }
 
-                if !cue.isEmpty {
+                if let label = previewTriggerLabel {
                     HStack(spacing: 6) {
-                        Text(cue).fontWeight(.bold)
+                        Text("\(label)になったら").fontWeight(.bold)
                         Image(systemName: "arrow.right").font(.system(size: 12, weight: .bold))
                         Text(title.isEmpty ? "（目標）" : title).fontWeight(.bold)
                     }
                     .font(.system(size: 14))
                     .foregroundStyle(Theme.ink)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.7)
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Theme.blue.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("知らせ方").font(.system(size: 14, weight: .bold)).foregroundStyle(Theme.ink)
+                        HStack(spacing: 6) {
+                            ForEach(AlertStyle.allCases) { style in
+                                SelectChip(title: style.label, icon: style.icon, selected: alertStyle == style, showsCheck: false) {
+                                    alertStyle = style
+                                }
+                            }
+                        }
+                        Text(alertStyleCaption)
+                            .font(.system(size: 12))
+                            .foregroundStyle(Theme.subtext)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             }
+        }
+    }
+
+    private var ifBadge: some View {
+        Text("If")
+            .font(.system(size: 13, weight: .heavy))
+            .foregroundStyle(.white)
+            .frame(width: 34, height: 28)
+            .background(Theme.blue, in: Capsule())
+    }
+
+    private var triggerMinutesValue: Int? {
+        switch triggerMode {
+        case .none:
+            return nil
+        case .time:
+            let components = Calendar.nareta.dateComponents([.hour, .minute], from: triggerTime)
+            return (components.hour ?? 0) * 60 + (components.minute ?? 0)
+        case .routine:
+            guard let routine = routines.first(where: { $0.id == routineId }) else { return nil }
+            return TriggerService.normalize(routine.minutes + triggerOffset)
+        }
+    }
+
+    private var previewTriggerLabel: String? {
+        guard let minutes = triggerMinutesValue else { return nil }
+        if triggerMode == .routine, let routine = routines.first(where: { $0.id == routineId }) {
+            let suffix = triggerOffset == 0 ? "" : "の" + TriggerService.offsetText(triggerOffset)
+            return "\(routine.name)\(suffix)（\(TriggerService.timeText(minutes))）"
+        }
+        return TriggerService.timeText(minutes)
+    }
+
+    private var alertStyleCaption: String {
+        switch alertStyle {
+        case .alarm:
+            AlarmService.isSupported
+                ? "マナーモード中でも、時計のアラームと同じように鳴ります。アラームの「達成した」ボタンで、そのまま記録できます。"
+                : "アラームはiOS 26以降で使えます。このiPhoneでは通知でお知らせします。"
+        case .notification:
+            "通知でお知らせします（マナーモード中は音が鳴りません）。"
+        case .none:
+            "時刻は目安として表示するだけで、お知らせはしません。"
         }
     }
 
@@ -409,7 +511,17 @@ struct GoalEditorView: View {
         if let goal {
             title = goal.title
             note = goal.note
-            cue = goal.cue
+            if let goalRoutineId = goal.routineId {
+                triggerMode = .routine
+                routineId = goalRoutineId
+                triggerOffset = goal.triggerOffset
+            } else if goal.triggerMinutes >= 0 {
+                triggerMode = .time
+                triggerTime = TriggerService.date(goal.triggerMinutes, on: Date())
+            } else {
+                triggerMode = .none
+            }
+            alertStyle = goal.alertStyleValue
             outcome = goal.wishOutcome
             obstacle = goal.obstacle
             obstaclePlan = goal.obstaclePlan
@@ -470,14 +582,45 @@ struct GoalEditorView: View {
             context.insert(target)
         }
         target.note = note
-        target.cue = cue.trimmingCharacters(in: .whitespaces)
+        switch triggerMode {
+        case .none:
+            target.routineId = nil
+            target.triggerMinutes = -1
+            target.triggerOffset = 0
+        case .time:
+            target.routineId = nil
+            target.triggerMinutes = triggerMinutesValue ?? -1
+            target.triggerOffset = 0
+        case .routine:
+            target.routineId = routineId
+            target.triggerOffset = triggerOffset
+            target.triggerMinutes = triggerMinutesValue ?? -1
+        }
+        target.alertStyle = alertStyle.rawValue
         target.wishOutcome = outcome.trimmingCharacters(in: .whitespacesAndNewlines)
         target.obstacle = obstacle.trimmingCharacters(in: .whitespacesAndNewlines)
         target.obstaclePlan = obstaclePlan.trimmingCharacters(in: .whitespacesAndNewlines)
 
         try? context.save()
         Haptics.success()
-        NotificationService.reschedule(context: context)
+        let needsAlarm = triggerMode != .none && alertStyle == .alarm
+        Task {
+            if needsAlarm { await AlarmService.requestAuthorization() }
+            NotificationService.reschedule(context: context)
+        }
         dismiss()
+    }
+}
+
+enum TriggerMode: String, CaseIterable, Identifiable {
+    case none, time, routine
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .none: "なし"
+        case .time: "時刻"
+        case .routine: "ルーティン"
+        }
     }
 }

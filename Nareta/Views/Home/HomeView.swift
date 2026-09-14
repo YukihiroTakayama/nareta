@@ -9,6 +9,7 @@ struct HomeView: View {
     @Query private var completions: [GoalCompletion]
     @Query private var pools: [MonthlyRewardPool]
     @Query(sort: \Identity.createdAt) private var identities: [Identity]
+    @Query private var routines: [RoutineAnchor]
     @Query(HomeView.pendingRewards) private var rewards: [Reward]
 
     private static var pendingRewards: FetchDescriptor<Reward> {
@@ -56,6 +57,7 @@ struct HomeView: View {
                             goal: goal,
                             completions: goalCompletions,
                             identity: goal.identityId.flatMap { identityMap[$0] },
+                            triggerLabel: TriggerService.label(for: goal, routines: routines),
                             onComplete: { appState.complete(goal, context: context) }
                         )
                     }
