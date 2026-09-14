@@ -3,6 +3,7 @@ import SwiftUI
 
 struct GoalEditorView: View {
     let goal: Goal?
+    var suggestion: GoalSuggestion?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -10,6 +11,10 @@ struct GoalEditorView: View {
 
     @State private var title = ""
     @State private var note = ""
+    @State private var cue = ""
+    @State private var outcome = ""
+    @State private var obstacle = ""
+    @State private var obstaclePlan = ""
     @State private var identityId: UUID?
     @State private var frequency: FrequencyType = .daily
     @State private var targetCount = 3
@@ -26,6 +31,7 @@ struct GoalEditorView: View {
     private static let quickAmounts = [50, 100, 200, 500, 1_000]
     private static let durations = [0, 10, 15, 20, 30, 45, 60, 90, 120]
     private static let titleLimit = 30
+    private static let cueExamples = ["朝起きたら", "昼食を食べ終えたら", "仕事が終わったら", "夕食の後に", "お風呂から出たら", "寝る前に"]
 
     private var isValid: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty
@@ -36,10 +42,13 @@ struct GoalEditorView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
+                suggestionBanner
                 titleSection
+                ifThenSection
                 identitySection
                 frequencySection
                 rewardSection
+                woopSection
                 verificationSection
             }
             .padding(.horizontal, 16)
@@ -79,6 +88,29 @@ struct GoalEditorView: View {
 
     // MARK: - Sections
 
+    @ViewBuilder
+    private var suggestionBanner: some View {
+        if let suggestion, goal == nil {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "medal.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(Theme.goldGradient)
+                    .frame(width: 40, height: 40)
+                    .background(Theme.gold.opacity(0.14), in: Circle())
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("「\(suggestion.sourceTitle)」卒業おめでとう")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(Theme.ink)
+                    Text("月およそ\(suggestion.monthlyEstimate.yen)分の報酬を、次の目標に回せます。")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.subtext)
+                }
+                Spacer(minLength: 0)
+            }
+            .cardStyle(background: Color(hex: 0xFFF9EA))
+        }
+    }
+
     private var titleSection: some View {
         EditorSection(title: "タイトル", trailing: "\(title.count)/\(Self.titleLimit)") {
             VStack(spacing: 10) {
@@ -95,6 +127,48 @@ struct GoalEditorView: View {
                     .padding(.horizontal, 14)
                     .frame(height: 42)
                     .background(Theme.chip.opacity(0.5), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+        }
+    }
+
+    private var ifThenSection: some View {
+        EditorSection(title: "If-Then計画", subtitle: "「いつ・どこで」やるかを先に決めておくと、実行率が上がります") {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 10) {
+                    Text("If")
+                        .font(.system(size: 13, weight: .heavy))
+                        .foregroundStyle(.white)
+                        .frame(width: 34, height: 28)
+                        .background(Theme.blue, in: Capsule())
+                    TextField("例: 昼食を食べ終えたら", text: $cue)
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                .padding(.horizontal, 10)
+                .frame(height: 50)
+                .background(Theme.chip.opacity(0.7), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(Self.cueExamples, id: \.self) { example in
+                            SelectChip(title: example, selected: cue == example, showsCheck: false) { cue = example }
+                        }
+                    }
+                }
+
+                if !cue.isEmpty {
+                    HStack(spacing: 6) {
+                        Text(cue).fontWeight(.bold)
+                        Image(systemName: "arrow.right").font(.system(size: 12, weight: .bold))
+                        Text(title.isEmpty ? "（目標）" : title).fontWeight(.bold)
+                    }
+                    .font(.system(size: 14))
+                    .foregroundStyle(Theme.ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Theme.blue.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
             }
         }
     }
@@ -249,6 +323,43 @@ struct GoalEditorView: View {
         .buttonStyle(.plain)
     }
 
+    private var woopSection: some View {
+        EditorSection(title: "障害への備え（WOOP）", subtitle: "うまくいかない場面を先に想像して、対策を決めておきます（任意）") {
+            VStack(alignment: .leading, spacing: 12) {
+                labeledField("Outcome", "達成できたら、どうなる？", "例: 体が軽くなって自信が持てる", $outcome)
+                labeledField("Obstacle", "邪魔になりそうなことは？", "例: 残業で疲れて帰りたくなる", $obstacle)
+                labeledField("Plan", "そのとき、どうする？", "例: ウェアを持って出社し、10分だけでも行く", $obstaclePlan)
+
+                if !obstacle.isEmpty && !obstaclePlan.isEmpty {
+                    Text("もし「\(obstacle)」なら → 「\(obstaclePlan)」")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Theme.ink)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Theme.gold.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+
+                Text("願いと障害をセットで考える「メンタル・コントラスティング」（Oettingen）にもとづく手法です。")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.subtext)
+            }
+        }
+    }
+
+    private func labeledField(_ tag: String, _ label: String, _ placeholder: String, _ text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text(tag).font(.system(size: 11, weight: .heavy)).foregroundStyle(Theme.goldDeep)
+                Text(label).font(.system(size: 13, weight: .semibold)).foregroundStyle(Theme.ink)
+            }
+            TextField(placeholder, text: text, axis: .vertical)
+                .font(.system(size: 15))
+                .lineLimit(1...3)
+                .padding(12)
+                .background(Theme.chip.opacity(0.6), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+    }
+
     private var verificationSection: some View {
         EditorSection(title: "判定方法", subtitle: "目標の達成をどのように判定しますか？") {
             VStack(spacing: 12) {
@@ -298,6 +409,10 @@ struct GoalEditorView: View {
         if let goal {
             title = goal.title
             note = goal.note
+            cue = goal.cue
+            outcome = goal.wishOutcome
+            obstacle = goal.obstacle
+            obstaclePlan = goal.obstaclePlan
             identityId = goal.identityId
             frequency = goal.frequency
             targetCount = max(1, goal.targetCount)
@@ -305,6 +420,9 @@ struct GoalEditorView: View {
             duration = goal.durationMinutes
             reward = goal.rewardAmount
             verification = goal.verification
+        } else if let suggestion {
+            identityId = suggestion.identityId ?? identities.first?.id
+            reward = suggestion.reward
         } else {
             identityId = identities.first?.id
         }
@@ -333,22 +451,30 @@ struct GoalEditorView: View {
         let count = (frequency == .weekly || frequency == .monthly) ? targetCount : 1
         let days = frequency == .weekdays ? Array(weekdays).sorted() : []
 
+        let target: Goal
         if let goal {
-            goal.title = trimmed
-            goal.note = note
-            goal.identityId = identityId
-            goal.frequencyType = frequency.rawValue
-            goal.targetCount = count
-            goal.weekdays = days
-            goal.durationMinutes = duration
-            goal.rewardAmount = reward
-            goal.verificationType = verification.rawValue
+            target = goal
+            target.title = trimmed
+            target.identityId = identityId
+            target.frequencyType = frequency.rawValue
+            target.targetCount = count
+            target.weekdays = days
+            target.durationMinutes = duration
+            target.rewardAmount = reward
+            target.verificationType = verification.rawValue
         } else {
-            context.insert(Goal(
-                title: trimmed, note: note, rewardAmount: reward, frequency: frequency, targetCount: count,
+            target = Goal(
+                title: trimmed, rewardAmount: reward, frequency: frequency, targetCount: count,
                 weekdays: days, durationMinutes: duration, identityId: identityId, verification: verification
-            ))
+            )
+            context.insert(target)
         }
+        target.note = note
+        target.cue = cue.trimmingCharacters(in: .whitespaces)
+        target.wishOutcome = outcome.trimmingCharacters(in: .whitespacesAndNewlines)
+        target.obstacle = obstacle.trimmingCharacters(in: .whitespacesAndNewlines)
+        target.obstaclePlan = obstaclePlan.trimmingCharacters(in: .whitespacesAndNewlines)
+
         try? context.save()
         Haptics.success()
         NotificationService.reschedule(context: context)

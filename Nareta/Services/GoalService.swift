@@ -46,7 +46,7 @@ enum GoalService {
     // MARK: - 達成可否
 
     static func canComplete(_ goal: Goal, _ completions: [GoalCompletion], now: Date = .now) -> Bool {
-        goal.isActive
+        goal.isLive
             && isScheduled(goal, on: now)
             && !isCompletedToday(completions, now: now)
             && periodCount(goal, completions, now: now) < periodTarget(goal)
@@ -54,6 +54,7 @@ enum GoalService {
 
     /// 達成できない理由（UI表示用）
     static func blockedReason(_ goal: Goal, _ completions: [GoalCompletion], now: Date = .now) -> String? {
+        if goal.archivedAt != nil { return "卒業済みの習慣です" }
         if !goal.isActive { return "一時停止中です" }
         if !isScheduled(goal, on: now) { return "今日は実施日ではありません" }
         if isCompletedToday(completions, now: now) { return "今日は達成済みです" }
@@ -69,7 +70,7 @@ enum GoalService {
     }
 
     static func showsInToday(_ goal: Goal, _ completions: [GoalCompletion], now: Date = .now) -> Bool {
-        guard goal.isActive, isScheduled(goal, on: now) else { return false }
+        guard goal.isLive, isScheduled(goal, on: now) else { return false }
         switch goal.frequency {
         case .daily, .weekdays:
             return true
@@ -80,7 +81,7 @@ enum GoalService {
 
     // MARK: - Streak
 
-    static func streak(_ goal: Goal, _ completions: [GoalCompletion], now: Date = .now) -> Int {
+    static func streak(_ goal: Goal, _ completions: [GoalCompletion], frozenDays: Set<Date> = [], now: Date = .now) -> Int {
         switch goal.frequency {
         case .daily, .weekdays:
             let days = Set(completions.map { $0.completedAt.startOfDay })
@@ -90,7 +91,8 @@ enum GoalService {
             var result = 0
             for _ in 0..<3650 {
                 guard day >= created else { break }
-                if goal.frequency == .weekdays && !goal.weekdays.contains(day.weekday) {
+                let isOffDay = goal.frequency == .weekdays && !goal.weekdays.contains(day.weekday)
+                if isOffDay || (frozenDays.contains(day) && !days.contains(day)) {
                     day = day.adding(days: -1)
                     continue
                 }
@@ -182,7 +184,7 @@ enum GoalService {
     }
 
     static func achievementRate(goals: [Goal], completions: [GoalCompletion], from start: Date, to end: Date) -> Double {
-        let targets = goals.filter { $0.isActive && $0.frequency != .once }
+        let targets = goals.filter { $0.isLive && $0.frequency != .once }
         let ids = Set(targets.map(\.id))
         let expectedTotal = targets.reduce(0.0) { $0 + expected($1, from: start, to: end) }
         guard expectedTotal > 0 else { return 0 }
@@ -204,7 +206,7 @@ enum GoalService {
         var due = 0
         for goal in goals {
             let c = count(byGoal[goal.id] ?? [], in: day)
-            let isDue = goal.isActive
+            let isDue = goal.isLive
                 && (goal.frequency == .daily || goal.frequency == .weekdays)
                 && isScheduled(goal, on: date)
                 && goal.createdAt.startOfDay <= day.start
@@ -222,9 +224,12 @@ enum GoalService {
     /// 過去30日の「なりたい自分」スコア（ゲーム的スコア）
     static func identityScore(identity: Identity, goals: [Goal], completions: [GoalCompletion], now: Date = .now) -> Double {
         let linked = goals.filter { $0.identityId == identity.id }
-        guard !linked.isEmpty else { return 0 }
+        let graduated = linked.filter { $0.archivedAt != nil }.count
+        let live = linked.filter { $0.archivedAt == nil }
+        guard !live.isEmpty else { return graduated > 0 ? 1 : 0 }
         let end = now.startOfDay.adding(days: 1)
         let start = end.adding(days: -30)
-        return achievementRate(goals: linked, completions: completions, from: start, to: end)
+        let rate = achievementRate(goals: live, completions: completions, from: start, to: end)
+        return min(1, rate + 0.1 * Double(graduated))
     }
 }

@@ -22,7 +22,7 @@ struct GoalRow: View {
                     .opacity(goal.isActive ? 1 : 0.4)
                     .padding(4)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
             .allowsHitTesting(canComplete)
             .accessibilityLabel(done ? "達成済み" : "達成する")
 
@@ -47,6 +47,19 @@ struct GoalRow: View {
                         .foregroundStyle(Theme.ink.opacity(0.8))
                     LinearBar(progress: Double(count) / Double(target), color: periodDone ? Theme.green : Theme.blue, height: 6)
                         .padding(.top, 2)
+                } else if !goal.cue.isEmpty {
+                    HStack(spacing: 5) {
+                        Text("If")
+                            .font(.system(size: 9, weight: .heavy))
+                            .foregroundStyle(Theme.blue)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Theme.blue.opacity(0.12), in: Capsule())
+                        Text(goal.cue)
+                            .font(.system(size: 13))
+                            .foregroundStyle(Theme.subtext)
+                            .lineLimit(1)
+                    }
                 } else if !goal.note.isEmpty {
                     Text(goal.note)
                         .font(.system(size: 13))

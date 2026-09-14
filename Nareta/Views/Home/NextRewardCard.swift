@@ -4,6 +4,7 @@ struct NextRewardCard: View {
     let reward: Reward
     let available: Int
     let onSeeAll: () -> Void
+    let onOpen: () -> Void
 
     var body: some View {
         let progress = reward.price > 0 ? min(1, Double(max(0, available)) / Double(reward.price)) : 1
@@ -21,9 +22,10 @@ struct NextRewardCard: View {
                     .font(.system(size: 14))
                     .foregroundStyle(Theme.subtext)
                 }
+                .buttonStyle(.borderless)
             }
 
-            NavigationLink(value: reward) {
+            Button(action: onOpen) {
                 HStack(spacing: 16) {
                     RewardThumbnail(reward: reward, size: 96, radius: 16)
                     VStack(alignment: .leading, spacing: 6) {
@@ -49,8 +51,9 @@ struct NextRewardCard: View {
                     }
                 }
                 .frame(height: 96)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
         }
         .cardStyle(padding: 16)
     }

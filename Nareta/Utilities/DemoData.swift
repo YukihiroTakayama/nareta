@@ -2,8 +2,8 @@
 import Foundation
 import SwiftData
 
-/// 起動引数 `-demo YES` で過去2週間分の達成データを生成（スクリーンショット・動作確認用）
-/// `-initialTab goals|rewards|me` で初期タブを指定
+/// 起動引数 `-demo YES` で過去の達成データを生成（スクリーンショット・動作確認用）
+/// `-initialTab goals|rewards|me` / `-debugGoal <タイトル>` / `-debugNewGoal YES`
 @MainActor
 enum DemoData {
     static var isRequested: Bool { ProcessInfo.processInfo.arguments.contains("-demo") }
@@ -17,33 +17,61 @@ enum DemoData {
         )
 
         let now = Date()
+        let today = now.startOfDay
+        let identities = (try? context.fetch(FetchDescriptor<Identity>())) ?? []
+        let healthId = identities.first { $0.name == "健康でいたい" }?.id
         let goals = (try? context.fetch(FetchDescriptor<Goal>(sortBy: [SortDescriptor(\.createdAt)]))) ?? []
-        goals.forEach { $0.createdAt = now.startOfDay.adding(days: -20) }
+        for (index, goal) in goals.enumerated() {
+            goal.createdAt = today.adding(days: index == 0 ? -75 : -20)
+        }
 
         let english = Goal(title: "英語20分", note: "未来の自分に投資しよう", rewardAmount: 200, frequency: .weekly, targetCount: 5,
-                           durationMinutes: 20, identityId: nil, createdAt: now.startOfDay.adding(days: -20))
+                           durationMinutes: 20, createdAt: today.adding(days: -20))
+        english.cue = "通勤電車に乗ったら"
         context.insert(english)
 
-        let game = Reward(name: "ゲーム", note: "好きなことでリフレッシュ", price: 6_000, category: .other, priority: .high)
-        context.insert(game)
+        let water = Goal(title: "水を2L飲む", rewardAmount: 100, frequency: .daily, identityId: healthId, createdAt: today.adding(days: -90))
+        water.cue = "朝、デスクに着いたら"
+        water.archivedAt = today.adding(days: -6).addingTimeInterval(20 * 3600)
+        context.insert(water)
+
+        context.insert(Reward(name: "ゲーム", note: "好きなことでリフレッシュ", price: 6_000, category: .other, priority: .high))
         try? context.save()
 
-        let service = RewardService(context: context)
         let monthStart = now.startOfMonth
-        for back in stride(from: 12, through: 1, by: -1) {
-            let day = now.startOfDay.adding(days: -back).addingTimeInterval(20 * 3600)
+        // 月初より前の履歴（Poolには反映しない）
+        for back in 1...89 {
+            let day = today.adding(days: -back).addingTimeInterval(20 * 3600)
+            if back <= 74, day < monthStart, back % 9 != 0 {
+                context.insert(GoalCompletion(goalId: goals[0].id, completedAt: day, rewardAmount: 100))
+            }
+            if back >= 7, back % 7 != 0 {
+                context.insert(GoalCompletion(goalId: water.id, completedAt: day, rewardAmount: 100))
+            }
+        }
+
+        let service = RewardService(context: context)
+        for back in stride(from: 30, through: 1, by: -1) {
+            let day = today.adding(days: -back).addingTimeInterval(20 * 3600)
             guard day >= monthStart else { continue }
             for (index, goal) in (goals + [english]).enumerated() {
                 let skip: Bool = switch goal.frequency {
-                case .weekly: (back + index) % 2 == 1
-                default: (back * 7 + index * 3) % 5 == 0 || (day.weekday == 7 && index % 2 == 0)
+                case .weekly:
+                    (back + index) % 2 == 1
+                default:
+                    index == 3
+                        ? (back == 1 || back % 4 == 3)
+                        : ((back * 7 + index * 3) % 5 == 0 || (day.weekday == 7 && index == 1))
                 }
                 if !skip { _ = service.completeGoal(goal, now: day) }
             }
         }
 
+        context.insert(AutomaticityCheck(goalId: goals[0].id, scores: [6, 6, 5, 6], checkedAt: today.adding(days: -10).addingTimeInterval(12 * 3600)))
+        context.insert(AutomaticityCheck(goalId: goals[0].id, scores: [6, 7, 6, 6], checkedAt: today.adding(days: -3).addingTimeInterval(12 * 3600)))
+
         if let pool = service.currentPool(now: now) {
-            let spentAt = now.startOfDay.adding(days: -4).addingTimeInterval(19 * 3600)
+            let spentAt = today.adding(days: -4).addingTimeInterval(19 * 3600)
             let dinner = Reward(name: "映画とディナー", note: "週末のごほうび", price: 4_800, category: .experience)
             dinner.isPurchased = true
             dinner.purchasedAt = spentAt

@@ -37,6 +37,12 @@ enum DataService {
             Goal(title: "23:30までに寝る", note: "明日のパフォーマンスのために", rewardAmount: 100, frequency: .daily,
                  identityId: identities["生活を整えたい"]?.id, createdAt: base.addingTimeInterval(3)),
         ]
+        goals[0].cue = "昼休みに外へ出たら"
+        goals[1].cue = "夕食を食べ終えたら"
+        goals[2].cue = "仕事が終わって会社を出たら"
+        goals[2].obstacle = "残業で疲れて帰りたくなる"
+        goals[2].obstaclePlan = "ウェアを持って出社し、10分だけでも行く"
+        goals[3].cue = "23:00にアラームが鳴ったら"
         goals.forEach(context.insert)
 
         let rewards: [Reward] = [
@@ -57,6 +63,8 @@ enum DataService {
         try? context.delete(model: Reward.self)
         try? context.delete(model: Identity.self)
         try? context.delete(model: MonthlyRewardPool.self)
+        try? context.delete(model: AutomaticityCheck.self)
+        try? context.delete(model: StreakFreeze.self)
         try? context.save()
     }
 
@@ -68,8 +76,11 @@ enum DataService {
             let id: UUID; let title: String; let note: String; let rewardAmount: Int; let frequencyType: String
             let targetCount: Int; let weekdays: [Int]; let durationMinutes: Int; let identityId: UUID?
             let isActive: Bool; let verificationType: String; let createdAt: Date
+            let cue: String; let wishOutcome: String; let obstacle: String; let obstaclePlan: String; let archivedAt: Date?
         }
-        struct CompletionDTO: Encodable { let id: UUID; let goalId: UUID; let completedAt: Date; let rewardAmount: Int }
+        struct CompletionDTO: Encodable { let id: UUID; let goalId: UUID; let completedAt: Date; let rewardAmount: Int; let bonusAmount: Int }
+        struct CheckDTO: Encodable { let id: UUID; let goalId: UUID; let checkedAt: Date; let scores: [Int] }
+        struct FreezeDTO: Encodable { let id: UUID; let goalId: UUID; let date: Date; let createdAt: Date }
         struct PoolDTO: Encodable {
             let id: UUID; let year: Int; let month: Int; let totalAmount: Int
             let unlockedAmount: Int; let spentAmount: Int; let carriedOverAmount: Int
@@ -87,6 +98,8 @@ enum DataService {
         let monthlyRewardPools: [PoolDTO]
         let rewards: [RewardDTO]
         let rewardTransactions: [TransactionDTO]
+        let automaticityChecks: [CheckDTO]
+        let streakFreezes: [FreezeDTO]
     }
 
     static func exportJSON(context: ModelContext) -> URL? {
@@ -98,9 +111,10 @@ enum DataService {
             goals: all(Goal.self).map {
                 .init(id: $0.id, title: $0.title, note: $0.note, rewardAmount: $0.rewardAmount, frequencyType: $0.frequencyType,
                       targetCount: $0.targetCount, weekdays: $0.weekdays, durationMinutes: $0.durationMinutes, identityId: $0.identityId,
-                      isActive: $0.isActive, verificationType: $0.verificationType, createdAt: $0.createdAt)
+                      isActive: $0.isActive, verificationType: $0.verificationType, createdAt: $0.createdAt,
+                      cue: $0.cue, wishOutcome: $0.wishOutcome, obstacle: $0.obstacle, obstaclePlan: $0.obstaclePlan, archivedAt: $0.archivedAt)
             },
-            goalCompletions: all(GoalCompletion.self).map { .init(id: $0.id, goalId: $0.goalId, completedAt: $0.completedAt, rewardAmount: $0.rewardAmount) },
+            goalCompletions: all(GoalCompletion.self).map { .init(id: $0.id, goalId: $0.goalId, completedAt: $0.completedAt, rewardAmount: $0.rewardAmount, bonusAmount: $0.bonusAmount) },
             monthlyRewardPools: all(MonthlyRewardPool.self).map {
                 .init(id: $0.id, year: $0.year, month: $0.month, totalAmount: $0.totalAmount,
                       unlockedAmount: $0.unlockedAmount, spentAmount: $0.spentAmount, carriedOverAmount: $0.carriedOverAmount)
@@ -111,7 +125,9 @@ enum DataService {
             },
             rewardTransactions: all(RewardTransaction.self).map {
                 .init(id: $0.id, type: $0.type, amount: $0.amount, title: $0.title, sourceId: $0.sourceId, createdAt: $0.createdAt)
-            }
+            },
+            automaticityChecks: all(AutomaticityCheck.self).map { .init(id: $0.id, goalId: $0.goalId, checkedAt: $0.checkedAt, scores: $0.scores) },
+            streakFreezes: all(StreakFreeze.self).map { .init(id: $0.id, goalId: $0.goalId, date: $0.date, createdAt: $0.createdAt) }
         )
 
         let encoder = JSONEncoder()

@@ -8,6 +8,8 @@ final class GoalCompletion {
     var completedAt: Date = Date()
     /// 実際に解放された金額（Pool上限で減額されることがある）
     var rewardAmount: Int = 0
+    /// rewardAmount のうち復帰ボーナス分
+    var bonusAmount: Int = 0
 
     init(goalId: UUID, completedAt: Date = .now, rewardAmount: Int) {
         self.id = UUID()

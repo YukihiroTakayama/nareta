@@ -7,6 +7,7 @@ struct CompletionResult: Identifiable, Equatable {
     let goalTitle: String
     let requestedAmount: Int
     let amount: Int
+    let bonusAmount: Int
     let balanceBefore: Int
     let balanceAfter: Int
     let rewardName: String?
@@ -93,26 +94,34 @@ struct RewardService {
     }
 
     func completeGoal(_ goal: Goal, now: Date = .now) -> CompletionResult? {
-        guard !alreadyCompleted(goal, now: now) else { return nil }
+        let completions = completions(for: goal)
+        guard GoalService.canComplete(goal, completions, now: now) else { return nil }
 
         let pool = currentPool(now: now) ?? startPool(amount: latestPool()?.totalAmount ?? Self.defaultPoolAmount, now: now)
         let before = pool.availableAmount
         let next = nextReward()
 
+        let frozen = Set(freezes(for: goal).map(\.date))
+        let bonus = HabitService.comebackBonus(goal, completions, frozenDays: frozen, now: now)
+        let requested = goal.rewardAmount + bonus
         let remaining = pool.totalAmount - pool.unlockedAmount
-        let reward = max(0, min(goal.rewardAmount, remaining))
+        let reward = max(0, min(requested, remaining))
+        let appliedBonus = max(0, reward - goal.rewardAmount)
 
         let completion = GoalCompletion(goalId: goal.id, completedAt: now, rewardAmount: reward)
+        completion.bonusAmount = appliedBonus
         context.insert(completion)
         pool.unlockedAmount += reward
-        context.insert(RewardTransaction(type: .earn, amount: reward, title: goal.title, sourceId: completion.id, createdAt: now))
+        let title = appliedBonus > 0 ? "\(goal.title)（復帰ボーナス \(appliedBonus.signedYen)）" : goal.title
+        context.insert(RewardTransaction(type: .earn, amount: reward, title: title, sourceId: completion.id, createdAt: now))
         save()
 
         return CompletionResult(
             completionId: completion.id,
             goalTitle: goal.title,
-            requestedAmount: goal.rewardAmount,
+            requestedAmount: requested,
             amount: reward,
+            bonusAmount: appliedBonus,
             balanceBefore: before,
             balanceAfter: pool.availableAmount,
             rewardName: next?.name,
@@ -133,6 +142,50 @@ struct RewardService {
             transactions.forEach(context.delete)
         }
         context.delete(completion)
+        save()
+    }
+
+    // MARK: - 習慣化
+
+    func freezes(for goal: Goal) -> [StreakFreeze] {
+        let goalId = goal.id
+        return (try? context.fetch(FetchDescriptor<StreakFreeze>(predicate: #Predicate { $0.goalId == goalId }))) ?? []
+    }
+
+    func applyFreeze(_ goal: Goal, day: Date) {
+        context.insert(StreakFreeze(goalId: goal.id, date: day))
+        save()
+    }
+
+    func recordAutomaticity(_ goal: Goal, scores: [Int]) {
+        context.insert(AutomaticityCheck(goalId: goal.id, scores: scores))
+        save()
+    }
+
+    func graduate(_ goal: Goal, now: Date = .now) {
+        goal.archivedAt = now
+        save()
+    }
+
+    func restore(_ goal: Goal) {
+        goal.archivedAt = nil
+        goal.isActive = true
+        save()
+    }
+
+    func togglePause(_ goal: Goal) {
+        goal.isActive.toggle()
+        save()
+    }
+
+    /// 解放済みのお金と履歴は残す
+    func deleteGoal(_ goal: Goal) {
+        context.delete(goal)
+        save()
+    }
+
+    func deleteReward(_ reward: Reward) {
+        context.delete(reward)
         save()
     }
 

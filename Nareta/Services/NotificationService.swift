@@ -24,7 +24,7 @@ enum NotificationService {
         let service = RewardService(context: context)
 
         // 朝 8:00
-        let dailyCount = goals.filter { $0.isActive && $0.frequency == .daily }.count
+        let dailyCount = goals.filter { $0.isLive && $0.frequency == .daily }.count
         if dailyCount > 0 {
             add(center, id: "morning", title: "NARETA", body: "今日の目標は\(dailyCount)つ。達成した分だけお小遣いが解放されます。",
                 components: DateComponents(hour: 8, minute: 0), repeats: true)

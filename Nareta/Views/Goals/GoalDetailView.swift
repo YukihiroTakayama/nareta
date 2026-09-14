@@ -10,10 +10,15 @@ struct GoalDetailView: View {
 
     @Query private var allCompletions: [GoalCompletion]
     @Query private var identities: [Identity]
+    @Query private var allChecks: [AutomaticityCheck]
+    @Query private var allFreezes: [StreakFreeze]
 
     @State private var displayedMonth = Date().startOfMonth
     @State private var confirmDelete = false
     @State private var isDeleted = false
+    @State private var showEditor = false
+    @State private var showCheck = false
+    @State private var showGraduation = false
 
     var body: some View {
         if isDeleted {
@@ -25,98 +30,75 @@ struct GoalDetailView: View {
 
     private var content: some View {
         let completions = allCompletions.filter { $0.goalId == goal.id }
+        let checks = allChecks.filter { $0.goalId == goal.id }
+        let goalFreezes = allFreezes.filter { $0.goalId == goal.id }
+        let frozen = Set(goalFreezes.map(\.date))
         let identity = identities.first { $0.id == goal.identityId }
-        let now = Date()
-        let monthCompletions = completions.filter { $0.completedAt >= now.startOfMonth }
-        let weekInterval = DateInterval(start: now.startOfWeek, duration: 7 * 86_400)
+        let isArchived = goal.archivedAt != nil
         let canComplete = GoalService.canComplete(goal, completions)
         let completedToday = GoalService.isCompletedToday(completions)
-        let streak = GoalService.streak(goal, completions)
+        let bonus = canComplete ? HabitService.comebackBonus(goal, completions, frozenDays: frozen) : 0
+        let freezableDay = HabitService.freezableDay(goal, completions, goalFreezes: goalFreezes, allFreezes: allFreezes)
+        let freezesLeft = HabitService.freezesPerMonth - HabitService.freezesUsed(allFreezes)
+        let graduation = HabitService.graduationStatus(goal, completions, checks)
 
         return ScrollView {
             VStack(spacing: 14) {
-                HeroCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 8) {
-                            if let identity { TagChip(text: identity.name, color: Color(hexString: identity.colorHex).mix(with: .white, by: 0.35)) }
-                            Text(goal.frequencyLabel).font(.system(size: 13)).foregroundStyle(.white.opacity(0.7))
-                            if !goal.isActive { TagChip(text: "一時停止中", color: .orange) }
-                        }
-                        Text(goal.title)
-                            .font(.system(size: 30, weight: .heavy))
-                            .foregroundStyle(.white)
-                            .lineLimit(2)
-                        if !goal.note.isEmpty {
-                            Text(goal.note).font(.system(size: 14)).foregroundStyle(.white.opacity(0.7))
-                        }
-                        HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text("報酬").font(.system(size: 14)).foregroundStyle(.white.opacity(0.7))
-                            MoneyText(amount: goal.rewardAmount, size: 32, signed: true)
-                                .fixedSize(horizontal: true, vertical: false)
-                            Text("/ 回").font(.system(size: 14)).foregroundStyle(.white.opacity(0.7))
-                        }
-                        .padding(.top, 4)
-                    }
-                    .padding(.trailing, 60)
+                hero(identity: identity, isArchived: isArchived)
+
+                if let archivedAt = goal.archivedAt {
+                    HabitNoticeCard(
+                        icon: "medal.fill", color: Theme.gold, title: "卒業した習慣です",
+                        message: "\(archivedAt.japaneseDayText)に卒業しました。報酬とTodayの対象から外れています。崩れてきたら、いつでも戻せます。",
+                        buttonTitle: "習慣に戻す", action: restore
+                    )
                 }
 
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                    periodTile(completions: completions, week: weekInterval)
-                    statTile(icon: "yensign.circle.fill", color: Theme.gold, label: "今月獲得",
-                             value: monthCompletions.reduce(0) { $0 + $1.rewardAmount }.yen)
-                    statTile(icon: "flame.fill", color: .orange, label: "Streak", value: GoalService.streakText(goal, streak))
-                    statTile(icon: "checkmark.seal.fill", color: Theme.green, label: "累計達成", value: "\(completions.count)回")
+                if bonus > 0 {
+                    HabitNoticeCard(
+                        icon: "arrow.uturn.up", color: Theme.gold, title: "おかえりなさい！ 今日は復帰ボーナス",
+                        message: "前回を逃しても、戻ってきたことに価値があります。今日達成すると \(goal.rewardAmount.signedYen) に \(bonus.signedYen) を上乗せして解放します。"
+                    )
                 }
 
-                MonthCalendarView(month: $displayedMonth, markedDays: Set(completions.map { $0.completedAt.startOfDay }))
-
-                VStack(spacing: 10) {
-                    PrimaryButton(title: completedToday ? "今日は達成済み" : "今日達成した", leadingIcon: "checkmark", kind: .blue) {
-                        appState.complete(goal, context: context)
+                if let day = freezableDay {
+                    HabitNoticeCard(
+                        icon: "snowflake", color: Color(hex: 0x38BDF8), title: "\(day.monthDayText) の連続記録を守れます",
+                        message: "Streak Freezeを使うと、休んだ日も連続記録が途切れません（今月あと\(freezesLeft)回）。\(bonus > 0 ? "使うと今日の復帰ボーナスは付きません。" : "1回の失敗であきらめないための仕組みです。")",
+                        buttonTitle: "Freezeを使う"
+                    ) {
+                        RewardService(context: context).applyFreeze(goal, day: day)
+                        Haptics.success()
                     }
-                    .disabled(!canComplete)
-
-                    if !canComplete, !completedToday, let reason = GoalService.blockedReason(goal, completions) {
-                        Text(reason).font(.system(size: 13)).foregroundStyle(Theme.subtext)
-                    }
-
-                    if completedToday, let today = completions.first(where: { $0.completedAt.isSameDay(as: now) }) {
-                        Button {
-                            RewardService(context: context).undoCompletion(id: today.id)
-                            NotificationService.reschedule(context: context)
-                            Haptics.tap()
-                        } label: {
-                            Label("今日の達成を取り消す（\(today.rewardAmount.signedYen)）", systemImage: "arrow.uturn.backward")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(Theme.subtext)
-                        }
-                        .padding(.vertical, 4)
-                    }
-
-                    HStack(spacing: 10) {
-                        NavigationLink {
-                            GoalEditorView(goal: goal)
-                        } label: {
-                            secondaryLabel("編集", icon: "pencil")
-                        }
-                        Button {
-                            goal.isActive.toggle()
-                            try? context.save()
-                            NotificationService.reschedule(context: context)
-                        } label: {
-                            secondaryLabel(goal.isActive ? "一時停止" : "再開", icon: goal.isActive ? "pause.fill" : "play.fill")
-                        }
-                    }
-                    .buttonStyle(.plain)
-
-                    Button(role: .destructive) {
-                        confirmDelete = true
-                    } label: {
-                        Text("この目標を削除").font(.system(size: 14, weight: .semibold)).foregroundStyle(Theme.red)
-                    }
-                    .padding(.top, 6)
                 }
-                .padding(.top, 4)
+
+                if HabitService.needsAutomaticityCheck(goal, checks) {
+                    HabitNoticeCard(
+                        icon: "brain.head.profile", color: Color(hex: 0x8B5CF6), title: "今週の自動化度チェック",
+                        message: "「考えずにできているか」を4問でふりかえります。30秒で終わります。",
+                        buttonTitle: "チェックする"
+                    ) { showCheck = true }
+                }
+
+                if goal.hasPlan {
+                    GoalPlanCard(goal: goal)
+                }
+
+                if HabitService.isGraduatable(goal) || isArchived {
+                    HabitMeterCard(goal: goal, status: graduation) { showGraduation = true }
+                }
+
+                statGrid(completions: completions, frozen: frozen)
+
+                MonthCalendarView(
+                    month: $displayedMonth,
+                    markedDays: Set(completions.map { $0.completedAt.startOfDay }),
+                    frozenDays: frozen
+                )
+
+                if !isArchived {
+                    actions(completions: completions, canComplete: canComplete, completedToday: completedToday)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
@@ -125,14 +107,119 @@ struct GoalDetailView: View {
         .background(Theme.background)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button("編集", systemImage: "pencil") { showEditor = true }
+                    if isArchived {
+                        Button("習慣に戻す", systemImage: "arrow.uturn.backward", action: restore)
+                    } else {
+                        Button(goal.isActive ? "一時停止" : "再開", systemImage: goal.isActive ? "pause" : "play") {
+                            RewardService(context: context).togglePause(goal)
+                            NotificationService.reschedule(context: context)
+                        }
+                        if graduation.isReady {
+                            Button("卒業する", systemImage: "medal") { showGraduation = true }
+                        }
+                    }
+                    Divider()
+                    Button("削除", systemImage: "trash", role: .destructive) { confirmDelete = true }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        .navigationDestination(isPresented: $showEditor) { GoalEditorView(goal: goal) }
+        .sheet(isPresented: $showCheck) { AutomaticityCheckView(goal: goal) }
+        .sheet(isPresented: $showGraduation) {
+            GraduationView(goal: goal, completions: completions) {
+                dismiss()
+                appState.suggestNextGoal(after: goal)
+            }
+        }
         .confirmationDialog("「\(goal.title)」を削除しますか？", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("削除する", role: .destructive, action: delete)
         } message: {
-            Text("これまでに解放したお金と履歴はそのまま残ります。")
+            Text("解放したお金と履歴はそのまま残ります。")
         }
     }
 
-    private func periodTile(completions: [GoalCompletion], week: DateInterval) -> some View {
+    // MARK: - Parts
+
+    private func hero(identity: Identity?, isArchived: Bool) -> some View {
+        HeroCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    if let identity {
+                        TagChip(text: identity.name, color: Color(hexString: identity.colorHex).mix(with: .white, by: 0.35))
+                    }
+                    Text(goal.frequencyLabel).font(.system(size: 13)).foregroundStyle(.white.opacity(0.7))
+                    if isArchived {
+                        TagChip(text: "卒業済み", color: Theme.goldLight)
+                    } else if !goal.isActive {
+                        TagChip(text: "一時停止中", color: .orange)
+                    }
+                }
+                Text(goal.title)
+                    .font(.system(size: 30, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                if !goal.note.isEmpty {
+                    Text(goal.note).font(.system(size: 14)).foregroundStyle(.white.opacity(0.7))
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("報酬").font(.system(size: 14)).foregroundStyle(.white.opacity(0.7))
+                    MoneyText(amount: goal.rewardAmount, size: 32, signed: true)
+                        .fixedSize(horizontal: true, vertical: false)
+                    Text("/ 回").font(.system(size: 14)).foregroundStyle(.white.opacity(0.7))
+                }
+                .padding(.top, 4)
+            }
+            .padding(.trailing, 60)
+        }
+    }
+
+    private func statGrid(completions: [GoalCompletion], frozen: Set<Date>) -> some View {
+        let monthStart = Date().startOfMonth
+        let monthEarned = completions.filter { $0.completedAt >= monthStart }.reduce(0) { $0 + $1.rewardAmount }
+        let streak = GoalService.streak(goal, completions, frozenDays: frozen)
+
+        return LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+            periodTile(completions: completions)
+            statTile(icon: "yensign.circle.fill", color: Theme.gold, label: "今月獲得", value: monthEarned.yen)
+            statTile(icon: "flame.fill", color: .orange, label: "Streak", value: GoalService.streakText(goal, streak))
+            statTile(icon: "checkmark.seal.fill", color: Theme.green, label: "累計達成", value: "\(completions.count)回")
+        }
+    }
+
+    private func actions(completions: [GoalCompletion], canComplete: Bool, completedToday: Bool) -> some View {
+        VStack(spacing: 10) {
+            PrimaryButton(title: completedToday ? "今日は達成済み" : "今日達成した", leadingIcon: "checkmark", kind: .blue) {
+                appState.complete(goal, context: context)
+            }
+            .disabled(!canComplete)
+
+            if !canComplete, !completedToday, let reason = GoalService.blockedReason(goal, completions) {
+                Text(reason).font(.system(size: 13)).foregroundStyle(Theme.subtext)
+            }
+
+            if completedToday, let today = completions.first(where: { $0.completedAt.isSameDay(as: Date()) }) {
+                Button {
+                    RewardService(context: context).undoCompletion(id: today.id)
+                    NotificationService.reschedule(context: context)
+                    Haptics.tap()
+                } label: {
+                    Label("今日の達成を取り消す（\(today.rewardAmount.signedYen)）", systemImage: "arrow.uturn.backward")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.subtext)
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .padding(.top, 4)
+    }
+
+    private func periodTile(completions: [GoalCompletion]) -> some View {
         let label: String
         let count: Int
         let target: Int
@@ -151,7 +238,7 @@ struct GoalDetailView: View {
             target = 1
         case .daily, .weekdays:
             label = "今週"
-            count = GoalService.count(completions, in: week)
+            count = GoalService.count(completions, in: DateInterval(start: Date().startOfWeek, duration: 7 * 86_400))
             target = goal.frequency == .daily ? 7 : max(1, goal.weekdays.count)
         }
         return VStack(alignment: .leading, spacing: 8) {
@@ -183,14 +270,12 @@ struct GoalDetailView: View {
         .cardStyle(padding: 14)
     }
 
-    private func secondaryLabel(_ title: String, icon: String) -> some View {
-        Label(title, systemImage: icon)
-            .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(Theme.ink)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(.white, in: Capsule())
-            .overlay(Capsule().stroke(Theme.line))
+    // MARK: - Actions
+
+    private func restore() {
+        RewardService(context: context).restore(goal)
+        NotificationService.reschedule(context: context)
+        Haptics.tap()
     }
 
     private func delete() {
@@ -199,8 +284,7 @@ struct GoalDetailView: View {
         dismiss()
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(400))
-            context.delete(target)
-            try? context.save()
+            RewardService(context: context).deleteGoal(target)
             NotificationService.reschedule(context: context)
         }
     }
@@ -209,6 +293,7 @@ struct GoalDetailView: View {
 struct MonthCalendarView: View {
     @Binding var month: Date
     let markedDays: Set<Date>
+    var frozenDays: Set<Date> = []
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
@@ -223,6 +308,12 @@ struct MonthCalendarView: View {
             HStack {
                 Text("\(String(start.year))年\(start.month)月").font(.system(size: 17, weight: .bold)).foregroundStyle(Theme.ink)
                 Spacer()
+                if !frozenDays.isEmpty {
+                    Label("Freeze", systemImage: "snowflake")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Color(hex: 0x0EA5E9))
+                        .padding(.trailing, 8)
+                }
                 Button { month = start.adding(months: -1) } label: { Image(systemName: "chevron.left") }
                     .padding(.horizontal, 8)
                 Button { month = start.adding(months: 1) } label: { Image(systemName: "chevron.right") }
@@ -241,6 +332,7 @@ struct MonthCalendarView: View {
                 ForEach(0..<daysInMonth, id: \.self) { offset in
                     let date = start.adding(days: offset)
                     let marked = markedDays.contains(date)
+                    let frozen = !marked && frozenDays.contains(date)
                     let isToday = date == today
                     Text("\(offset + 1)")
                         .font(.system(size: 14, weight: marked || isToday ? .bold : .regular))
@@ -250,6 +342,8 @@ struct MonthCalendarView: View {
                         .background {
                             if marked {
                                 Circle().fill(Theme.green)
+                            } else if frozen {
+                                Circle().fill(Color(hex: 0xBAE6FD))
                             } else if isToday {
                                 Circle().stroke(Theme.blue, lineWidth: 1.5)
                             }

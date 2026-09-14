@@ -66,6 +66,14 @@ final class Goal {
     var isActive: Bool = true
     var verificationType: String = VerificationType.manual.rawValue
     var createdAt: Date = Date()
+    /// If-Then計画の「If」（いつ・どこで）
+    var cue: String = ""
+    /// WOOP: Outcome / Obstacle / Plan
+    var wishOutcome: String = ""
+    var obstacle: String = ""
+    var obstaclePlan: String = ""
+    /// 定着して卒業した日時（nil = 現役）
+    var archivedAt: Date?
 
     init(
         title: String,
@@ -91,6 +99,10 @@ final class Goal {
         self.verificationType = verification.rawValue
         self.createdAt = createdAt
     }
+
+    /// 一時停止でも卒業済みでもない
+    var isLive: Bool { isActive && archivedAt == nil }
+    var hasPlan: Bool { !cue.isEmpty || !wishOutcome.isEmpty || !obstacle.isEmpty || !obstaclePlan.isEmpty }
 
     var frequency: FrequencyType { FrequencyType(rawValue: frequencyType) ?? .daily }
     var verification: VerificationType { VerificationType(rawValue: verificationType) ?? .manual }

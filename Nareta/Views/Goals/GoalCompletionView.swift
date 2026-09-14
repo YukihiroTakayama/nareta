@@ -59,6 +59,14 @@ struct GoalCompletionView: View {
                     Text(result.amount > 0 ? "解放しました" : "今月のReward Poolはすべて解放済みです")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
+                    if result.bonusAmount > 0 {
+                        Label("復帰ボーナス \(result.bonusAmount.signedYen) 込み", systemImage: "arrow.uturn.up")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(Theme.goldLight)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Theme.gold.opacity(0.18), in: Capsule())
+                    }
                     if result.wasCapped && result.amount > 0 {
                         Text("Pool上限のため \(result.requestedAmount.yen) → \(result.amount.yen)")
                             .font(.system(size: 12))

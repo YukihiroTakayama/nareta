@@ -240,7 +240,7 @@ struct WeeklyReviewView: View {
         let counts = Dictionary(grouping: week.completions, by: \.goalId).mapValues(\.count)
         let best = goals.filter { counts[$0.id] != nil }.max { (counts[$0.id] ?? 0) < (counts[$1.id] ?? 0) }
         let improvable = goals
-            .filter { $0.isActive && $0.frequency != .once }
+            .filter { $0.isLive && $0.frequency != .once }
             .map { goal -> (Goal, Double) in
                 let expected = GoalService.expected(goal, from: week.start, to: min(week.start.adding(days: 7), Date().startOfDay.adding(days: 1)))
                 return (goal, expected > 0 ? Double(counts[goal.id] ?? 0) / expected : 1)

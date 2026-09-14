@@ -18,6 +18,8 @@ struct NaretaApp: App {
             MonthlyRewardPool.self,
             Reward.self,
             RewardTransaction.self,
+            AutomaticityCheck.self,
+            StreakFreeze.self,
         ])
     }
 }

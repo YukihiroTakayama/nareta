@@ -90,6 +90,8 @@ struct StatsView: View {
 
                     identityProgress
 
+                    graduatedSection
+
                     VStack(spacing: 0) {
                         NavigationLink { HistoryView() } label: {
                             menuRow(icon: "clock.arrow.circlepath", title: "History", subtitle: "獲得・使用の履歴")
@@ -145,7 +147,15 @@ struct StatsView: View {
                         .frame(width: 44, height: 44)
                         .background(color.opacity(0.13), in: Circle())
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(identity.name).font(.system(size: 16, weight: .bold)).foregroundStyle(Theme.ink)
+                        HStack(spacing: 6) {
+                            Text(identity.name).font(.system(size: 16, weight: .bold)).foregroundStyle(Theme.ink)
+                            let graduatedCount = goals.filter { $0.identityId == identity.id && $0.archivedAt != nil }.count
+                            if graduatedCount > 0 {
+                                Label("卒業 \(graduatedCount)", systemImage: "medal.fill")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(Theme.goldDeep)
+                            }
+                        }
                         LinearBar(progress: score, color: color, height: 9)
                     }
                     Text("\(Int((score * 100).rounded()))%")
@@ -155,6 +165,49 @@ struct StatsView: View {
                 }
                 .padding(12)
                 .background(Theme.background, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+        }
+        .cardStyle()
+    }
+
+    private var graduatedSection: some View {
+        let graduated = goals
+            .filter { $0.archivedAt != nil }
+            .sorted { ($0.archivedAt ?? .distantPast) > ($1.archivedAt ?? .distantPast) }
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("定着した習慣").font(.system(size: 20, weight: .bold)).foregroundStyle(Theme.ink)
+                    Text("考えなくてもできるようになった、なりたい自分の証拠").font(.system(size: 13)).foregroundStyle(Theme.subtext)
+                }
+                Spacer()
+                if !graduated.isEmpty {
+                    NavigationLink { GraduatedGoalsView() } label: {
+                        HStack(spacing: 4) {
+                            Text("すべて見る")
+                            Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                        }
+                        .font(.system(size: 14))
+                        .foregroundStyle(Theme.subtext)
+                    }
+                }
+            }
+            if graduated.isEmpty {
+                Text("66日つづけて、考えなくてもできるようになった目標は、ここに卒業します。")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Theme.subtext)
+            } else {
+                ForEach(graduated.prefix(3)) { goal in
+                    NavigationLink(value: goal) {
+                        GraduatedGoalRow(
+                            goal: goal,
+                            identity: identities.first { $0.id == goal.identityId },
+                            completionCount: completions.filter { $0.goalId == goal.id }.count
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
         .cardStyle()
