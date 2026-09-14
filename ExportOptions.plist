@@ -9,7 +9,16 @@
 	<key>teamID</key>
 	<string>J9UUQMJBMJ</string>
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>app.nareta</key>
+		<string>app.nareta AppStore Group</string>
+		<key>app.nareta.widget</key>
+		<string>app.nareta.widget AppStore</string>
+	</dict>
 	<key>uploadSymbols</key>
 	<true/>
 </dict>
