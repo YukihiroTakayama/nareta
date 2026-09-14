@@ -1,6 +1,6 @@
 name: Nareta
 options:
-  bundleIdPrefix: com.fragde
+  bundleIdPrefix: app.nareta
   deploymentTarget:
     iOS: "18.0"
   createIntermediateGroups: true
@@ -8,17 +8,19 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "2"
+    CURRENT_PROJECT_VERSION: "3"
+    DEVELOPMENT_TEAM: J9UUQMJBMJ
+    CODE_SIGN_STYLE: Automatic
 targets:
   Nareta:
     type: application
     platform: iOS
     sources:
       - path: Nareta
+      - path: Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.nareta
-        DEVELOPMENT_TEAM: J9UUQMJBMJ
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Config/Info.plist
@@ -28,5 +30,31 @@ targets:
         INFOPLIST_KEY_UIUserInterfaceStyle: Light
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "1"
-        CODE_SIGN_STYLE: Automatic
         ENABLE_PREVIEWS: YES
+  # ウィジェット（App Groupの作成にXcodeのApple IDが必要なため一旦ビルド対象外）
+  # 有効化するとき: Nareta に dependencies(NaretaWidget) と
+  # entitlements(com.apple.security.application-groups: group.app.nareta) を戻し、下のコメントを外す
+  # NaretaWidget:
+  #   type: app-extension
+  #   platform: iOS
+  #   sources:
+  #     - path: NaretaWidget
+  #     - path: Shared
+  #   entitlements:
+  #     path: Config/NaretaWidget.entitlements
+  #     properties:
+  #       com.apple.security.application-groups:
+  #         - group.app.nareta
+  #   info:
+  #     path: Config/NaretaWidget-Info.plist
+  #     properties:
+  #       CFBundleDisplayName: NARETA
+  #       CFBundleShortVersionString: $(MARKETING_VERSION)
+  #       CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+  #       NSExtension:
+  #         NSExtensionPointIdentifier: com.apple.widgetkit-extension
+  #   settings:
+  #     base:
+  #       PRODUCT_BUNDLE_IDENTIFIER: app.nareta.widget
+  #       TARGETED_DEVICE_FAMILY: "1"
+  #       SKIP_INSTALL: YES

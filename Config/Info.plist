@@ -4,5 +4,24 @@
 <dict>
 	<key>NSAlarmKitUsageDescription</key>
 	<string>目標の時刻になったら、マナーモード中でも気づけるようにアラームで知らせます。</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>app.nareta.refresh</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>app.nareta</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>nareta</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

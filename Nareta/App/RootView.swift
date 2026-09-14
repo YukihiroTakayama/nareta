@@ -106,6 +106,17 @@ struct MainTabView: View {
                     .zIndex(5)
             }
         }
+        .onAppear {
+            let router = NotificationRouter.shared
+            router.handler = { route in appState.handle(route) }
+            if let pending = router.pending {
+                router.pending = nil
+                appState.handle(pending)
+            }
+        }
+        .onOpenURL { url in
+            if let route = AppRoute(url: url) { appState.handle(route) }
+        }
     }
 }
 

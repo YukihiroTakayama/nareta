@@ -89,7 +89,8 @@ enum HabitService {
         return nil
     }
 
-    /// 直近の実施機会を逃した後に戻ってきたら、報酬の50%を上乗せ
+    /// 実施日を2回続けて逃した後に戻ってきたら、報酬の50%を上乗せ。
+    /// 1回休みで付けると「1日おきにやる」方が毎日より得になるため、2回連続を条件にする
     static func comebackBonus(_ goal: Goal, _ completions: [GoalCompletion], frozenDays: Set<Date>, now: Date = .now) -> Int {
         let prior = completions.filter { $0.completedAt < now.startOfDay }
         guard !prior.isEmpty else { return 0 }
@@ -97,8 +98,12 @@ enum HabitService {
         let missed: Bool
         switch goal.frequency {
         case .daily, .weekdays:
-            guard let previous = previousScheduledDay(goal, before: now) else { return 0 }
-            missed = !prior.contains { $0.completedAt.isSameDay(as: previous) } && !frozenDays.contains(previous)
+            guard let previous = previousScheduledDay(goal, before: now),
+                  let beforePrevious = previousScheduledDay(goal, before: previous) else { return 0 }
+            let kept: (Date) -> Bool = { day in
+                prior.contains { $0.completedAt.isSameDay(as: day) } || frozenDays.contains(day)
+            }
+            missed = !kept(previous) && !kept(beforePrevious)
         case .weekly:
             guard let thisWeek = cal.dateInterval(of: .weekOfYear, for: now),
                   let lastWeek = cal.dateInterval(of: .weekOfYear, for: thisWeek.start.addingTimeInterval(-1)),

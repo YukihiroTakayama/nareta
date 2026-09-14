@@ -21,7 +21,22 @@ final class AppState {
     var celebration: CompletionResult?
     var undoItem: CompletionResult?
     var pendingSuggestion: GoalSuggestion?
+    /// 各タブの画面が拾って遷移する
+    var pendingRoute: AppRoute?
     private var undoTask: Task<Void, Never>?
+
+    func handle(_ route: AppRoute) {
+        switch route {
+        case .home:
+            selectedTab = .home
+        case .weeklyReview:
+            selectedTab = .me
+            pendingRoute = route
+        case .goal:
+            selectedTab = .home
+            pendingRoute = route
+        }
+    }
 
     func suggestNextGoal(after goal: Goal) {
         let suggestion = GoalSuggestion(

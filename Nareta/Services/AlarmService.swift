@@ -14,7 +14,7 @@ enum AlarmAuthorization {
 /// iOS 26未満や未許可のときは NotificationService が通知で代替する。
 @MainActor
 enum AlarmService {
-    static let maxAlarms = 40
+    static let maxAlarms = 60
     private static var pending: Task<Void, Never>?
 
     static var isSupported: Bool {
@@ -43,13 +43,16 @@ enum AlarmService {
         #endif
     }
 
-    /// 予約済みのアラームを消して、今後7日分を入れ直す（前回の処理が終わってから順番に実行）
-    static func reschedule(context: ModelContext) {
+    /// 予約済みのアラームを消して、今後14日分を入れ直す（前回の処理が終わってから順番に実行）
+    @discardableResult
+    static func reschedule(context: ModelContext) -> Task<Void, Never> {
         let previous = pending
-        pending = Task { @MainActor in
+        let task = Task { @MainActor in
             await previous?.value
             await performReschedule(context: context)
         }
+        pending = task
+        return task
     }
 
     private static func performReschedule(context: ModelContext) async {
@@ -69,7 +72,9 @@ enum AlarmService {
         var planned: [(date: Date, goal: Goal)] = []
         for goal in goals where goal.alertStyleValue == .alarm {
             guard let minutes = TriggerService.minutes(for: goal, routines: routines) else { continue }
-            planned += TriggerService.fireDates(for: goal, minutes: minutes, completions: byGoal[goal.id] ?? []).map { ($0, goal) }
+            planned += TriggerService.fireDates(
+                for: goal, minutes: minutes, completions: byGoal[goal.id] ?? [], days: NotificationService.horizonDays
+            ).map { ($0, goal) }
         }
         for item in planned.sorted(by: { $0.date < $1.date }).prefix(maxAlarms) {
             await schedule(goal: item.goal, at: item.date)

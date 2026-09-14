@@ -10,7 +10,9 @@ struct StatsView: View {
     @Query private var transactions: [RewardTransaction]
     @Query private var pools: [MonthlyRewardPool]
 
+    @Environment(AppState.self) private var appState
     @State private var showSettings = false
+    @State private var showWeekly = false
     @State private var exportURL: URL?
 
     var body: some View {
@@ -23,6 +25,8 @@ struct StatsView: View {
         let spent = -monthTx.filter { $0.typeValue == .spend }.reduce(0) { $0 + $1.amount }
         let rate = GoalService.achievementRate(goals: goals, completions: completions, from: monthStart, to: tomorrow)
         let weekRate = GoalService.achievementRate(goals: goals, completions: completions, from: now.startOfWeek, to: tomorrow)
+        let adjustments = DifficultyService.suggestions(goals: goals, completions: completions)
+            .filter { !DifficultyService.isDismissed($0.goal) }.count
 
         NavigationStack {
             ScrollView {
@@ -79,7 +83,9 @@ struct StatsView: View {
                             IconBadge(systemName: "calendar.badge.checkmark", color: .white, background: Theme.blue, size: 46)
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("今週のふりかえり").font(.system(size: 16, weight: .bold)).foregroundStyle(Theme.ink)
-                                Text("今週の達成率 \(Int((weekRate * 100).rounded()))%").font(.system(size: 13)).foregroundStyle(Theme.subtext)
+                                Text(adjustments > 0
+    ? "今週の達成率 \(Int((weekRate * 100).rounded()))% · 調整案 \(adjustments)件"
+    : "今週の達成率 \(Int((weekRate * 100).rounded()))%").font(.system(size: 13)).foregroundStyle(Theme.subtext)
                             }
                             Spacer()
                             Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Theme.subtext)
@@ -124,6 +130,12 @@ struct StatsView: View {
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Goal.self) { GoalDetailView(goal: $0) }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .navigationDestination(isPresented: $showWeekly) { WeeklyReviewView() }
+            .onChange(of: appState.pendingRoute, initial: true) { _, route in
+                guard route == .weeklyReview else { return }
+                appState.pendingRoute = nil
+                showWeekly = true
+            }
             .onAppear { exportURL = DataService.exportJSON(context: context) }
         }
     }

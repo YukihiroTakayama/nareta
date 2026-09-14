@@ -58,7 +58,7 @@ struct GoalDetailView: View {
                 if bonus > 0 {
                     HabitNoticeCard(
                         icon: "arrow.uturn.up", color: Theme.gold, title: "おかえりなさい！ 今日は復帰ボーナス",
-                        message: "前回を逃しても、戻ってきたことに価値があります。今日達成すると \(goal.rewardAmount.signedYen) に \(bonus.signedYen) を上乗せして解放します。"
+                        message: "間が空いても、戻ってきたことに価値があります。今日達成すると \(goal.rewardAmount.signedYen) に \(bonus.signedYen) を上乗せして解放します。"
                     )
                 }
 

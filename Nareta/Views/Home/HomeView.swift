@@ -99,6 +99,12 @@ struct HomeView: View {
             .navigationDestination(isPresented: $showHistoryPush) { HistoryView() }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showHistory) { NavigationStack { HistoryView(showsCloseButton: true) } }
+            .onChange(of: appState.pendingRoute, initial: true) { _, route in
+                guard case .goal(let id) = route, let goal = goals.first(where: { $0.id == id }) else { return }
+                appState.pendingRoute = nil
+                path = NavigationPath()
+                path.append(goal)
+            }
             .goalDeleteDialog($deletingGoal) { goal in
                 RewardService(context: context).deleteGoal(goal)
                 NotificationService.reschedule(context: context)

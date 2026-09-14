@@ -4,6 +4,8 @@ import SwiftUI
 
 struct WeeklyReviewView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.modelContext) private var context
+    @State private var handledSuggestions: Set<UUID> = []
 
     @Query(sort: \Goal.createdAt) private var goals: [Goal]
     @Query private var completions: [GoalCompletion]
@@ -149,6 +151,8 @@ struct WeeklyReviewView: View {
 
                 highlights(current)
 
+                adjustmentSection
+
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 10) {
                         IconBadge(systemName: "chart.bar.fill", color: Theme.ink, background: Theme.chip, size: 38)
@@ -177,6 +181,93 @@ struct WeeklyReviewView: View {
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private var adjustmentSection: some View {
+        let items = DifficultyService.suggestions(goals: goals, completions: completions)
+            .filter { !handledSuggestions.contains($0.id) && !DifficultyService.isDismissed($0.goal) }
+
+        if weekOffset == 0 && !items.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 10) {
+                    IconBadge(systemName: "slider.horizontal.3", color: Theme.ink, background: Theme.chip, size: 38)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("来週の調整案").font(.system(size: 18, weight: .bold)).foregroundStyle(Theme.ink)
+                        Text("直近2週間の達成率から、ちょうどいい難しさを提案します")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Theme.subtext)
+                    }
+                }
+
+                ForEach(items) { suggestion in
+                    suggestionRow(suggestion)
+                }
+
+                Text("目標は「少しがんばれば届く」くらいが最も成果につながります（目標設定理論: Locke & Latham）。達成率90%以上なら難しく、50%以下ならやさしくする提案をします。")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.subtext)
+            }
+            .cardStyle()
+        }
+    }
+
+    private func suggestionRow(_ suggestion: DifficultySuggestion) -> some View {
+        let isLevelUp = suggestion.kind == .levelUp
+        let color = isLevelUp ? Theme.green : Color.orange
+
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Label(isLevelUp ? "レベルアップ" : "やさしくする", systemImage: isLevelUp ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(color)
+                Spacer()
+                Text("達成率 \(Int((suggestion.rate * 100).rounded()))%")
+                    .font(.system(size: 12, weight: .semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.subtext)
+            }
+            Text(suggestion.goal.title)
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Theme.ink)
+            Text(suggestion.message)
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.ink.opacity(0.85))
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 8) {
+                if suggestion.change != nil {
+                    Button {
+                        DifficultyService.apply(suggestion)
+                        try? context.save()
+                        NotificationService.reschedule(context: context)
+                        Haptics.success()
+                        withAnimation(.snappy) { _ = handledSuggestions.insert(suggestion.id) }
+                    } label: {
+                        Text("適用する")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 16)
+                            .frame(height: 34)
+                            .background(color, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+                Button {
+                    DifficultyService.dismiss(suggestion.goal)
+                    withAnimation(.snappy) { _ = handledSuggestions.insert(suggestion.id) }
+                } label: {
+                    Text(suggestion.change == nil ? "OK" : "そのまま")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.subtext)
+                        .padding(.horizontal, 14)
+                        .frame(height: 34)
+                        .background(Theme.chip, in: Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(12)
+        .background(Theme.background, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func weekLabel(_ start: Date) -> String {
