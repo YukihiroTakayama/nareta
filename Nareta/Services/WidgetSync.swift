@@ -35,7 +35,8 @@ enum WidgetSync {
             todayEarned: earned,
             goals: items,
             nextRewardName: next?.name,
-            nextRewardPrice: next?.price
+            nextRewardPrice: next?.price,
+            streak: GoalService.dayStreak(completions, now: now)
         ).save()
         WidgetCenter.shared.reloadAllTimelines()
     }

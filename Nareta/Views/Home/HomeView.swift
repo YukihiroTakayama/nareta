@@ -25,6 +25,7 @@ struct HomeView: View {
     @State private var editingGoal: Goal?
     @State private var deletingGoal: Goal?
     @State private var didOpenDebugGoal = false
+    @AppStorage("yesterdayCheck.dismissedDay") private var yesterdayCheckDismissed = 0
 
     var body: some View {
         let now = Date()
@@ -33,13 +34,31 @@ struct HomeView: View {
         let identityMap = Dictionary(identities.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         let todayGoals = goals.filter { GoalService.showsInToday($0, byGoal[$0.id] ?? []) }
         let todayCompletions = completions.filter { $0.completedAt.isSameDay(as: now) }
+        let yesterday = now.startOfDay.adding(days: -1)
+        let missedYesterday = yesterdayCheckDismissed == Int(yesterday.timeIntervalSince1970) ? [] : goals.filter {
+            ($0.frequency == .daily || $0.frequency == .weekdays)
+                && GoalService.canBackfill($0, byGoal[$0.id] ?? [], day: yesterday, now: now)
+        }
 
         NavigationStack(path: $path) {
             List {
                 header(month: now.month).cardRow(top: 8, bottom: 6)
 
                 RewardBalanceCard(pool: pool, streak: GoalService.dayStreak(completions))
-                    .cardRow(top: 10, bottom: 14)
+                    .cardRow(top: 10, bottom: 10)
+
+                StreakCard(goals: goals, completions: completions)
+                    .cardRow(top: 0, bottom: 10)
+
+                if !missedYesterday.isEmpty {
+                    YesterdayCheckCard(
+                        day: yesterday,
+                        goals: missedYesterday,
+                        onRecord: { appState.backfill($0, day: yesterday, context: context) },
+                        onDismiss: { withAnimation { yesterdayCheckDismissed = Int(yesterday.timeIntervalSince1970) } }
+                    )
+                    .cardRow(top: 0, bottom: 10)
+                }
 
                 TodayHeader(goals: todayGoals, byGoal: byGoal)
                     .cardRow(top: 10, bottom: 4)
@@ -71,7 +90,9 @@ struct HomeView: View {
                             RewardService(context: context).togglePause(goal)
                             NotificationService.reschedule(context: context)
                         },
-                        onDelete: { deletingGoal = goal }
+                        onDelete: { deletingGoal = goal },
+                        canBackfillYesterday: GoalService.canBackfill(goal, goalCompletions, day: Date().startOfDay.adding(days: -1)),
+                        onBackfillYesterday: { appState.backfill(goal, day: Date().startOfDay.adding(days: -1), context: context) }
                     ))
                 }
 

@@ -47,8 +47,14 @@ enum NotificationService {
         }
         if !todayRemaining.isEmpty, let fire = calendar.date(bySettingHour: 21, minute: 0, second: 0, of: now), fire > now {
             let sum = todayRemaining.reduce(0) { $0 + $1.rewardAmount }
-            add(center, id: "evening", title: "あと\(todayRemaining.count)つで今日\(sum.signedYen)",
-                body: todayRemaining.map(\.title).prefix(3).joined(separator: "・"),
+            let streak = GoalService.dayStreak(completions, now: now)
+            let atRisk = streak > 0 && !completions.contains { $0.completedAt.isSameDay(as: now) }
+            let titles = todayRemaining.map(\.title)
+            add(center, id: "evening",
+                title: atRisk ? "\(streak)日連続が途切れそうです" : "あと\(todayRemaining.count)つで今日\(sum.signedYen)",
+                body: atRisk
+                    ? "1つ達成で\(streak + 1)日連続。\(titles.prefix(2).joined(separator: "・"))"
+                    : titles.prefix(3).joined(separator: "・"),
                 components: calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fire), repeats: false, route: .home)
         }
 

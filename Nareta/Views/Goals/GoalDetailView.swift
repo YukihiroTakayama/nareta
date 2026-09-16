@@ -20,6 +20,7 @@ struct GoalDetailView: View {
     @State private var showEditor = false
     @State private var showCheck = false
     @State private var showGraduation = false
+    @State private var calendarDay: Date?
 
     var body: some View {
         if isDeleted {
@@ -91,11 +92,22 @@ struct GoalDetailView: View {
 
                 statGrid(completions: completions, frozen: frozen)
 
-                MonthCalendarView(
-                    month: $displayedMonth,
-                    markedDays: Set(completions.map { $0.completedAt.startOfDay }),
-                    frozenDays: frozen
-                )
+                VStack(alignment: .leading, spacing: 6) {
+                    MonthCalendarView(
+                        month: $displayedMonth,
+                        markedDays: Set(completions.map { $0.completedAt.startOfDay }),
+                        frozenDays: frozen,
+                        onTapDay: { day in
+                            if isEditableDay(day, completions: completions) { calendarDay = day }
+                        }
+                    )
+                    if !isArchived {
+                        Label("\(GoalService.backfillDays)日前までの日付をタップすると、記録し忘れた分の追加や取り消しができます", systemImage: "hand.tap")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Theme.subtext)
+                            .padding(.horizontal, 4)
+                    }
+                }
 
                 if !isArchived {
                     actions(completions: completions, canComplete: canComplete, completedToday: completedToday)
@@ -129,6 +141,31 @@ struct GoalDetailView: View {
                     Image(systemName: "ellipsis.circle")
                 }
             }
+        }
+        .confirmationDialog(
+            "記録を編集",
+            isPresented: Binding(get: { calendarDay != nil }, set: { if !$0 { calendarDay = nil } }),
+            titleVisibility: .visible,
+            presenting: calendarDay
+        ) { day in
+            let goalCompletions = allCompletions.filter { $0.goalId == goal.id }
+            if let existing = goalCompletions.first(where: { $0.completedAt.isSameDay(as: day) }) {
+                Button("\(day.monthDayText)の達成を取り消す（-\(existing.rewardAmount.yen)）", role: .destructive) {
+                    RewardService(context: context).undoCompletion(id: existing.id)
+                    NotificationService.reschedule(context: context)
+                    Haptics.tap()
+                }
+            } else if day.isSameDay(as: Date()) {
+                Button("今日達成した（\(goal.rewardAmount.signedYen)）") {
+                    appState.complete(goal, context: context)
+                }
+            } else {
+                Button("\(day.monthDayText)を達成として記録する（\(goal.rewardAmount.signedYen)）") {
+                    appState.backfill(goal, day: day, context: context)
+                }
+            }
+        } message: { day in
+            Text(day.japaneseDayText)
         }
         .navigationDestination(isPresented: $showEditor) { GoalEditorView(goal: goal) }
         .sheet(isPresented: $showCheck) { AutomaticityCheckView(goal: goal) }
@@ -204,6 +241,18 @@ struct GoalDetailView: View {
                 Text(reason).font(.system(size: 13)).foregroundStyle(Theme.subtext)
             }
 
+            let yesterday = Date().startOfDay.adding(days: -1)
+            if GoalService.canBackfill(goal, completions, day: yesterday) {
+                Button {
+                    appState.backfill(goal, day: yesterday, context: context)
+                } label: {
+                    Label("昨日の分を記録する（記録し忘れ）", systemImage: "calendar.badge.plus")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.blue)
+                }
+                .padding(.vertical, 2)
+            }
+
             if completedToday, let today = completions.first(where: { $0.completedAt.isSameDay(as: Date()) }) {
                 Button {
                     RewardService(context: context).undoCompletion(id: today.id)
@@ -273,6 +322,14 @@ struct GoalDetailView: View {
 
     // MARK: - Actions
 
+    private func isEditableDay(_ day: Date, completions: [GoalCompletion]) -> Bool {
+        let today = Date().startOfDay
+        guard goal.archivedAt == nil, day <= today, day >= today.adding(days: -GoalService.backfillDays) else { return false }
+        if completions.contains(where: { $0.completedAt.isSameDay(as: day) }) { return true }
+        if day == today { return GoalService.canComplete(goal, completions) }
+        return GoalService.canBackfill(goal, completions, day: day)
+    }
+
     private func restore() {
         RewardService(context: context).restore(goal)
         NotificationService.reschedule(context: context)
@@ -295,6 +352,7 @@ struct MonthCalendarView: View {
     @Binding var month: Date
     let markedDays: Set<Date>
     var frozenDays: Set<Date> = []
+    var onTapDay: ((Date) -> Void)?
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
@@ -348,6 +406,10 @@ struct MonthCalendarView: View {
                             } else if isToday {
                                 Circle().stroke(Theme.blue, lineWidth: 1.5)
                             }
+                        }
+                        .contentShape(Circle())
+                        .onTapGesture {
+                            if date <= today { onTapDay?(date) }
                         }
                 }
             }

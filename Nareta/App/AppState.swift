@@ -59,6 +59,15 @@ final class AppState {
         NotificationService.reschedule(context: context)
     }
 
+    /// 記録し忘れた日の分を入れる
+    func backfill(_ goal: Goal, day: Date, context: ModelContext) {
+        let at = Calendar.nareta.date(bySettingHour: 20, minute: 0, second: 0, of: day) ?? day
+        guard let result = RewardService(context: context).completeGoal(goal, now: at, backfill: true) else { return }
+        Haptics.success()
+        withAnimation(.easeOut(duration: 0.2)) { celebration = result }
+        NotificationService.reschedule(context: context)
+    }
+
     func finishCelebration() {
         guard let result = celebration else { return }
         withAnimation(.easeOut(duration: 0.25)) { celebration = nil }

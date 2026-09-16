@@ -84,6 +84,7 @@ enum DataService {
         try? context.delete(model: AutomaticityCheck.self)
         try? context.delete(model: StreakFreeze.self)
         try? context.delete(model: RoutineAnchor.self)
+        try? context.delete(model: StreakMilestone.self)
         try? context.save()
     }
 

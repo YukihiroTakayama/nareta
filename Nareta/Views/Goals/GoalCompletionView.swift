@@ -59,6 +59,11 @@ struct GoalCompletionView: View {
                     Text(result.amount > 0 ? "解放しました" : "今月のReward Poolはすべて解放済みです")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
+                    if let day = result.recordedDay {
+                        Text("\(day.japaneseDayText)の分として記録しました")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
                     if result.bonusAmount > 0 {
                         Label("復帰ボーナス \(result.bonusAmount.signedYen) 込み", systemImage: "arrow.uturn.up")
                             .font(.system(size: 13, weight: .bold))
@@ -75,6 +80,29 @@ struct GoalCompletionView: View {
                 }
                 .opacity(showAmount ? 1 : 0)
                 .scaleEffect(showAmount ? 1 : 0.6)
+
+                if let days = result.milestoneDays {
+                    VStack(spacing: 4) {
+                        Label("\(days)日連続達成！", systemImage: "flame.fill")
+                            .font(.system(size: 20, weight: .heavy))
+                            .foregroundStyle(LinearGradient(colors: [Color(hex: 0xFFC857), Color(hex: 0xF08A24)], startPoint: .top, endPoint: .bottom))
+                        if result.milestoneBonus > 0 {
+                            Text("連続ボーナス \(result.milestoneBonus.signedYen)")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundStyle(Theme.goldLight)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Theme.gold.opacity(0.16), in: Capsule())
+                    .opacity(showDetails ? 1 : 0)
+                    .scaleEffect(showDetails ? 1 : 0.7)
+                } else if result.streak > 0 {
+                    Label("\(result.streak)日連続", systemImage: "flame.fill")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(Color.orange)
+                        .opacity(showDetails ? 1 : 0)
+                }
 
                 VStack(alignment: .leading, spacing: 14) {
                     VStack(alignment: .leading, spacing: 6) {

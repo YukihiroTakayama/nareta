@@ -43,6 +43,8 @@ struct GoalRowActions: ViewModifier {
     let onEdit: () -> Void
     let onTogglePause: () -> Void
     let onDelete: () -> Void
+    var canBackfillYesterday = false
+    var onBackfillYesterday: () -> Void = {}
 
     func body(content: Content) -> some View {
         content
@@ -50,6 +52,10 @@ struct GoalRowActions: ViewModifier {
                 if canComplete {
                     Button(action: onComplete) { Label("達成", systemImage: "checkmark") }
                         .tint(Theme.green)
+                }
+                if canBackfillYesterday {
+                    Button(action: onBackfillYesterday) { Label("昨日", systemImage: "calendar.badge.plus") }
+                        .tint(Theme.blue)
                 }
             }
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -65,6 +71,9 @@ struct GoalRowActions: ViewModifier {
             .contextMenu {
                 if canComplete {
                     Button("達成する", systemImage: "checkmark.circle", action: onComplete)
+                }
+                if canBackfillYesterday {
+                    Button("昨日やった（記録し忘れ）", systemImage: "calendar.badge.plus", action: onBackfillYesterday)
                 }
                 Button("編集", systemImage: "pencil", action: onEdit)
                 Button(goal.isActive ? "一時停止" : "再開", systemImage: goal.isActive ? "pause" : "play", action: onTogglePause)

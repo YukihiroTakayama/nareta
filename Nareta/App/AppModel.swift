@@ -13,6 +13,7 @@ enum AppModel {
             AutomaticityCheck.self,
             StreakFreeze.self,
             RoutineAnchor.self,
+            StreakMilestone.self,
         ])
         do {
             return try ModelContainer(for: schema)

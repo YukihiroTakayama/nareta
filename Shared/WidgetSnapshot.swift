@@ -18,6 +18,7 @@ struct WidgetSnapshot: Codable {
     var goals: [GoalItem]
     var nextRewardName: String?
     var nextRewardPrice: Int?
+    var streak: Int?
 
     static let appGroup = "group.app.nareta"
     private static let key = "widgetSnapshot.v1"
@@ -77,6 +78,7 @@ struct WidgetSnapshot: Codable {
             GoalItem(id: UUID(), title: "23:30までに寝る", reward: 100, done: false, trigger: "23:00"),
         ],
         nextRewardName: "AirPods Pro",
-        nextRewardPrice: 39_800
+        nextRewardPrice: 39_800,
+        streak: 7
     )
 }

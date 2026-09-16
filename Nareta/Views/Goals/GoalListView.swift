@@ -69,7 +69,9 @@ struct GoalListView: View {
                             RewardService(context: context).togglePause(goal)
                             NotificationService.reschedule(context: context)
                         },
-                        onDelete: { deletingGoal = goal }
+                        onDelete: { deletingGoal = goal },
+                        canBackfillYesterday: GoalService.canBackfill(goal, goalCompletions, day: Date().startOfDay.adding(days: -1)),
+                        onBackfillYesterday: { appState.backfill(goal, day: Date().startOfDay.adding(days: -1), context: context) }
                     ))
                 }
 

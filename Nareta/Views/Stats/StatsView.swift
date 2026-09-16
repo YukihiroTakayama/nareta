@@ -76,6 +76,8 @@ struct StatsView: View {
                     .background(.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Theme.line))
 
+                    ContinuityCard(goals: goals, completions: completions)
+
                     NavigationLink {
                         WeeklyReviewView()
                     } label: {

@@ -12,6 +12,11 @@ struct CompletionResult: Identifiable, Equatable {
     let balanceAfter: Int
     let rewardName: String?
     let rewardPrice: Int
+    /// 記録し忘れた日の分として入れたときの日付
+    var recordedDay: Date?
+    var streak: Int = 0
+    var milestoneDays: Int?
+    var milestoneBonus: Int = 0
 
     var remainingBefore: Int { max(0, rewardPrice - balanceBefore) }
     var remainingAfter: Int { max(0, rewardPrice - balanceAfter) }
@@ -31,11 +36,13 @@ struct RewardService {
 
     // MARK: - Pool
 
-    func currentPool(now: Date = .now) -> MonthlyRewardPool? {
-        let y = now.year
-        let m = now.month
-        let descriptor = FetchDescriptor<MonthlyRewardPool>(predicate: #Predicate { $0.year == y && $0.month == m })
+    func pool(year: Int, month: Int) -> MonthlyRewardPool? {
+        let descriptor = FetchDescriptor<MonthlyRewardPool>(predicate: #Predicate { $0.year == year && $0.month == month })
         return try? context.fetch(descriptor).first
+    }
+
+    func currentPool(now: Date = .now) -> MonthlyRewardPool? {
+        pool(year: now.year, month: now.month)
     }
 
     func latestPool() -> MonthlyRewardPool? {
@@ -89,20 +96,27 @@ struct RewardService {
         return (try? context.fetch(descriptor)) ?? []
     }
 
+    func allCompletions() -> [GoalCompletion] {
+        (try? context.fetch(FetchDescriptor<GoalCompletion>())) ?? []
+    }
+
     func alreadyCompleted(_ goal: Goal, now: Date = .now) -> Bool {
         !GoalService.canComplete(goal, completions(for: goal), now: now)
     }
 
-    func completeGoal(_ goal: Goal, now: Date = .now) -> CompletionResult? {
+    /// 目標を達成にする。backfill = true なら `now` の日の分（記録し忘れ）として記録し、報酬は今月のPoolに入れる
+    func completeGoal(_ goal: Goal, now: Date = .now, backfill: Bool = false) -> CompletionResult? {
         let completions = completions(for: goal)
         guard GoalService.canComplete(goal, completions, now: now) else { return nil }
 
-        let pool = currentPool(now: now) ?? startPool(amount: latestPool()?.totalAmount ?? Self.defaultPoolAmount, now: now)
+        let creditDate = backfill ? Date() : now
+        let pool = currentPool(now: creditDate)
+            ?? startPool(amount: latestPool()?.totalAmount ?? Self.defaultPoolAmount, now: creditDate)
         let before = pool.availableAmount
         let next = nextReward()
 
         let frozen = Set(freezes(for: goal).map(\.date))
-        let bonus = HabitService.comebackBonus(goal, completions, frozenDays: frozen, now: now)
+        let bonus = backfill ? 0 : HabitService.comebackBonus(goal, completions, frozenDays: frozen, now: now)
         let requested = goal.rewardAmount + bonus
         let remaining = pool.totalAmount - pool.unlockedAmount
         let reward = max(0, min(requested, remaining))
@@ -110,11 +124,19 @@ struct RewardService {
 
         let completion = GoalCompletion(goalId: goal.id, completedAt: now, rewardAmount: reward)
         completion.bonusAmount = appliedBonus
+        completion.creditedYear = pool.year
+        completion.creditedMonth = pool.month
+        completion.isBackfilled = backfill
         context.insert(completion)
         pool.unlockedAmount += reward
-        let title = appliedBonus > 0 ? "\(goal.title)（復帰ボーナス \(appliedBonus.signedYen)）" : goal.title
+
+        var title = appliedBonus > 0 ? "\(goal.title)（復帰ボーナス \(appliedBonus.signedYen)）" : goal.title
+        if backfill { title += "（\(now.monthDayText)の分）" }
         context.insert(RewardTransaction(type: .earn, amount: reward, title: title, sourceId: completion.id, createdAt: now))
         save()
+
+        let milestone = awardStreakMilestones(pool: pool, completionId: completion.id)
+        let streak = GoalService.dayStreak(allCompletions())
 
         return CompletionResult(
             completionId: completion.id,
@@ -125,24 +147,67 @@ struct RewardService {
             balanceBefore: before,
             balanceAfter: pool.availableAmount,
             rewardName: next?.name,
-            rewardPrice: next?.price ?? 0
+            rewardPrice: next?.price ?? 0,
+            recordedDay: backfill ? now.startOfDay : nil,
+            streak: streak,
+            milestoneDays: milestone?.days,
+            milestoneBonus: milestone?.amount ?? 0
         )
+    }
+
+    /// 連続日数がマイルストーンに届いていたらボーナスを解放（同じ連続期間では1回だけ）
+    private func awardStreakMilestones(pool: MonthlyRewardPool, completionId: UUID, today: Date = .now) -> (days: Int, amount: Int)? {
+        let all = allCompletions()
+        let streak = GoalService.dayStreak(all, now: today)
+        guard streak > 0, let runStart = StreakService.runStart(all, streak: streak, now: today) else { return nil }
+
+        let existing = (try? context.fetch(FetchDescriptor<StreakMilestone>())) ?? []
+        var latest: (days: Int, amount: Int)?
+        for milestone in StreakService.milestones where milestone.days <= streak {
+            let days = milestone.days
+            guard !existing.contains(where: { $0.days == days && $0.achievedAt >= runStart }) else { continue }
+            let amount = max(0, min(milestone.bonus, pool.totalAmount - pool.unlockedAmount))
+            let record = StreakMilestone(days: days, amount: amount, achievedAt: today, completionId: completionId)
+            context.insert(record)
+            pool.unlockedAmount += amount
+            context.insert(RewardTransaction(type: .earn, amount: amount, title: "\(days)日連続ボーナス", sourceId: record.id, createdAt: today))
+            latest = (days, amount)
+        }
+        if latest != nil { save() }
+        return latest
     }
 
     func undoCompletion(id completionId: UUID) {
         let cid = completionId
         guard let completion = try? context.fetch(FetchDescriptor<GoalCompletion>(predicate: #Predicate { $0.id == cid })).first else { return }
 
-        let date = completion.completedAt
-        if let pool = currentPool(now: date) {
-            pool.unlockedAmount = max(0, pool.unlockedAmount - completion.rewardAmount)
+        let creditedPool = completion.creditedYear > 0
+            ? pool(year: completion.creditedYear, month: completion.creditedMonth)
+            : currentPool(now: completion.completedAt)
+        if let creditedPool {
+            creditedPool.unlockedAmount = max(0, creditedPool.unlockedAmount - completion.rewardAmount)
         }
+        deleteTransactions(sourceId: cid)
+
+        // この達成で解放した連続ボーナスも取り消す
         let optionalId: UUID? = cid
-        if let transactions = try? context.fetch(FetchDescriptor<RewardTransaction>(predicate: #Predicate { $0.sourceId == optionalId })) {
-            transactions.forEach(context.delete)
+        let milestones = (try? context.fetch(FetchDescriptor<StreakMilestone>(predicate: #Predicate { $0.completionId == optionalId }))) ?? []
+        for milestone in milestones {
+            if let creditedPool {
+                creditedPool.unlockedAmount = max(0, creditedPool.unlockedAmount - milestone.amount)
+            }
+            deleteTransactions(sourceId: milestone.id)
+            context.delete(milestone)
         }
+
         context.delete(completion)
         save()
+    }
+
+    private func deleteTransactions(sourceId: UUID) {
+        let optionalId: UUID? = sourceId
+        let transactions = (try? context.fetch(FetchDescriptor<RewardTransaction>(predicate: #Predicate { $0.sourceId == optionalId }))) ?? []
+        transactions.forEach(context.delete)
     }
 
     // MARK: - 習慣化

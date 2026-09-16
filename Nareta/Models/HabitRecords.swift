@@ -44,3 +44,22 @@ final class StreakFreeze {
         self.createdAt = createdAt
     }
 }
+
+/// 連続達成日数のマイルストーン（同じ連続期間では1回だけ解放）
+@Model
+final class StreakMilestone {
+    var id: UUID = UUID()
+    var days: Int = 0
+    var amount: Int = 0
+    var achievedAt: Date = Date()
+    /// このマイルストーンを解放した達成（取り消されたらボーナスも取り消す）
+    var completionId: UUID?
+
+    init(days: Int, amount: Int, achievedAt: Date = .now, completionId: UUID?) {
+        self.id = UUID()
+        self.days = days
+        self.amount = amount
+        self.achievedAt = achievedAt
+        self.completionId = completionId
+    }
+}

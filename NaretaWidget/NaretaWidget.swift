@@ -67,10 +67,18 @@ struct TodaySmallView: View {
         let remaining = snapshot.remaining(at: entry.date)
 
         VStack(alignment: .leading, spacing: 2) {
-            Text("TODAY")
-                .font(.system(size: 11, weight: .heavy))
-                .tracking(2)
-                .foregroundStyle(.white.opacity(0.7))
+            HStack {
+                Text("TODAY")
+                    .font(.system(size: 11, weight: .heavy))
+                    .tracking(2)
+                    .foregroundStyle(.white.opacity(0.7))
+                Spacer()
+                if let streak = snapshot.streak, streak > 0 {
+                    Label("\(streak)", systemImage: "flame.fill")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.orange)
+                }
+            }
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text("\(done)")
                     .font(.system(size: 36, weight: .heavy))
@@ -213,7 +221,7 @@ struct LockWidgetView: View {
                 Text(WidgetSnapshot.yen(snapshot.available))
                     .font(.system(size: 20, weight: .heavy))
                     .widgetAccentable()
-                Text("今日 \(done)/\(total) · あと\(WidgetSnapshot.yen(snapshot.remaining(at: entry.date)))")
+                Text("\((snapshot.streak ?? 0) > 0 ? "🔥\(snapshot.streak ?? 0) · " : "")今日 \(done)/\(total) · あと\(WidgetSnapshot.yen(snapshot.remaining(at: entry.date)))")
                     .font(.system(size: 12, weight: .semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)

@@ -52,6 +52,19 @@ enum GoalService {
             && periodCount(goal, completions, now: now) < periodTarget(goal)
     }
 
+    /// 記録し忘れをあとから入れられる日数
+    static let backfillDays = 7
+
+    /// 過去の日（今日より前、backfillDays日前まで）の分として達成を記録できるか
+    static func canBackfill(_ goal: Goal, _ completions: [GoalCompletion], day: Date, now: Date = .now) -> Bool {
+        let target = day.startOfDay
+        let today = now.startOfDay
+        guard target < today,
+              target >= today.adding(days: -backfillDays),
+              target >= goal.createdAt.startOfDay else { return false }
+        return canComplete(goal, completions, now: target.addingTimeInterval(12 * 3600))
+    }
+
     /// 達成できない理由（UI表示用）
     static func blockedReason(_ goal: Goal, _ completions: [GoalCompletion], now: Date = .now) -> String? {
         if goal.archivedAt != nil { return "卒業済みの習慣です" }

@@ -27,7 +27,10 @@
 		4C20E7D7CDF64ABAB642A7DE /* HabitRecords.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B867509422308312A31E928 /* HabitRecords.swift */; };
 		4D033E126D0043963E099597 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EA527F14EE0FD99428587B /* HistoryView.swift */; };
 		4FB61B552413D5C2149B406D /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453B18CBB48EAC5F292A376E /* WelcomeView.swift */; };
+		52746761100D5F1078C8E87C /* StreakCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A46A79865F0BAC25046B02C /* StreakCard.swift */; };
 		5375C01CFB6D22E5F02E5A0E /* RoutineAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3B81F31CF6F4FBB4C33F0FF /* RoutineAnchor.swift */; };
+		5A6F36C16E8A4472511F5FA3 /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B5D0AA3918402BE16DD517 /* StreakService.swift */; };
+		5E1F45FAD1284FDADB5A9EFA /* YesterdayCheckCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704B2AD76464832B8E8DF614 /* YesterdayCheckCard.swift */; };
 		607F0802A9B7EA6E7F005834 /* GoalEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C01F95C1B8C4677490E462A /* GoalEditorView.swift */; };
 		60F5C7E9AFEF6264031755BE /* WeeklyReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74F98E8A643FED28DE58159 /* WeeklyReviewView.swift */; };
 		61BAE98B6F93800B336BE20F /* RewardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D0438B55CBA0DA1B2188EB /* RewardService.swift */; };
@@ -36,6 +39,7 @@
 		699DAD0C1B5AF861603EF81D /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7499DE60289A454B7357E81B /* GoalDetailView.swift */; };
 		69C4BB15A10C9E976170E70C /* MonthlyRewardPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF49781E502F1D832283FED /* MonthlyRewardPool.swift */; };
 		6C7E79C78B54051F9176DCC3 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A08453EB3FA2D04B972DFFB /* HealthKitService.swift */; };
+		6E7869DCB9609230AFBBB38B /* ContinuityCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC24819F90E764CB41E963BC /* ContinuityCard.swift */; };
 		6F8ED9AD615D00C261C57D92 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A04457019F879F3E7427306 /* HomeView.swift */; };
 		6FB861B1A1DC4875EA04B9CD /* Reward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E6DD2CA910C58EA91E6372 /* Reward.swift */; };
 		74B829DB044A5F60F9F6E0DB /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 327E3BA46F79ACB9B126594E /* DemoData.swift */; };
@@ -127,6 +131,7 @@
 		6A04457019F879F3E7427306 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		6C01F95C1B8C4677490E462A /* GoalEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalEditorView.swift; sourceTree = "<group>"; };
 		6CAE0B82BB30486DE50930DA /* NaretaWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NaretaWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		704B2AD76464832B8E8DF614 /* YesterdayCheckCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YesterdayCheckCard.swift; sourceTree = "<group>"; };
 		736CB699FDDB27719958932E /* RewardEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardEditorView.swift; sourceTree = "<group>"; };
 		746DAF652BA013321F7F1D9B /* HabitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitService.swift; sourceTree = "<group>"; };
 		7499DE60289A454B7357E81B /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
@@ -142,7 +147,9 @@
 		9933AF8FF11F55BE876BAD3B /* RewardPoolSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardPoolSetupView.swift; sourceTree = "<group>"; };
 		99518BB4861C2C07FE624AF0 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		9A08453EB3FA2D04B972DFFB /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		9A46A79865F0BAC25046B02C /* StreakCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCard.swift; sourceTree = "<group>"; };
 		9C84761E1BDFA59BE75514A5 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
+		A1B5D0AA3918402BE16DD517 /* StreakService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakService.swift; sourceTree = "<group>"; };
 		A858F752BCE88977C2474E5E /* GoalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalListView.swift; sourceTree = "<group>"; };
 		AC1AC858553A960B65616429 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		AD9749EC25B87503AF751437 /* TodayGoalList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayGoalList.swift; sourceTree = "<group>"; };
@@ -164,6 +171,7 @@
 		E744DD2EFA63A52D2884ED3A /* DifficultyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyService.swift; sourceTree = "<group>"; };
 		E7B52D68965C8D3FB97AF201 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		F18D6B1B69CA3CEAC45BAE83 /* GraduatedGoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraduatedGoalsView.swift; sourceTree = "<group>"; };
+		FC24819F90E764CB41E963BC /* ContinuityCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuityCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -234,6 +242,7 @@
 		3DEDDB1B2E8B3A15B9C403A2 /* Stats */ = {
 			isa = PBXGroup;
 			children = (
+				FC24819F90E764CB41E963BC /* ContinuityCard.swift */,
 				B5EA527F14EE0FD99428587B /* HistoryView.swift */,
 				E7B52D68965C8D3FB97AF201 /* StatsView.swift */,
 				C74F98E8A643FED28DE58159 /* WeeklyReviewView.swift */,
@@ -247,7 +256,9 @@
 				6A04457019F879F3E7427306 /* HomeView.swift */,
 				45C14341BC4474727191EFFF /* NextRewardCard.swift */,
 				6563A09000EF1F324BA4B574 /* RewardBalanceCard.swift */,
+				9A46A79865F0BAC25046B02C /* StreakCard.swift */,
 				AD9749EC25B87503AF751437 /* TodayGoalList.swift */,
+				704B2AD76464832B8E8DF614 /* YesterdayCheckCard.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -368,6 +379,7 @@
 				1035065749592131CA141EF9 /* LocationService.swift */,
 				14517DA11E57B3F0907CC4B0 /* NotificationService.swift */,
 				22D0438B55CBA0DA1B2188EB /* RewardService.swift */,
+				A1B5D0AA3918402BE16DD517 /* StreakService.swift */,
 				1E8DF29327047262A2134DCB /* TriggerService.swift */,
 				C121500D022EFE130589EC66 /* WidgetSync.swift */,
 			);
@@ -483,6 +495,7 @@
 				00F66F1245C687793762E3DE /* AppState.swift in Sources */,
 				200A027FC03FBBDDA600B0FD /* AutomaticityCheckView.swift in Sources */,
 				7A8FCAF68EE8424B7FBFCD98 /* BackgroundRefresh.swift in Sources */,
+				6E7869DCB9609230AFBBB38B /* ContinuityCard.swift in Sources */,
 				0EBA65EFAB25E84BE408D947 /* Controls.swift in Sources */,
 				67A1A9EE6F8CF585EB3DCDF3 /* DataService.swift in Sources */,
 				86FA6FB1EE029A4C1469A93C /* DeepLink.swift in Sources */,
@@ -532,6 +545,8 @@
 				D869830E715E66E523DE51D1 /* RowActions.swift in Sources */,
 				D5186804E42AD5058196514E /* SettingsView.swift in Sources */,
 				D59475167D343593D5FE382B /* StatsView.swift in Sources */,
+				52746761100D5F1078C8E87C /* StreakCard.swift in Sources */,
+				5A6F36C16E8A4472511F5FA3 /* StreakService.swift in Sources */,
 				FA116FBDE92C5879F61C1C62 /* Theme.swift in Sources */,
 				C4C5063C824C1018316DC4B5 /* TodayGoalList.swift in Sources */,
 				E7E2845E4A474A8B1BE19921 /* TriggerService.swift in Sources */,
@@ -539,6 +554,7 @@
 				4FB61B552413D5C2149B406D /* WelcomeView.swift in Sources */,
 				C0AF29278D3F415E7AD78127 /* WidgetSnapshot.swift in Sources */,
 				41D37CADDC3989920CE65825 /* WidgetSync.swift in Sources */,
+				5E1F45FAD1284FDADB5A9EFA /* YesterdayCheckCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -612,7 +628,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J9UUQMJBMJ;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -689,7 +705,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = J9UUQMJBMJ;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
